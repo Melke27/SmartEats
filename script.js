@@ -119,23 +119,35 @@ async function handleNutritionCalculation(event) {
     showLoading('Calculating your personalized nutrition needs...');
     
     try {
-        const response = await fetch(`${API_BASE_URL}/nutrition/calculate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-        
-        if (response.ok) {
-            const results = await response.json();
-            displayNutritionResults(results.results);
-            AppState.nutritionResults = results.results;
-            AppState.userProfile = formData;
-            saveToLocalStorage('userProfile', formData);
-            saveToLocalStorage('nutritionResults', results.results);
+        // Check if user is authenticated for backend API call
+        const token = getAuthToken();
+        if (token) {
+            // Use authenticated API call
+            const response = await fetch(`${API_BASE_URL}/nutrition/calculate`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(formData)
+            });
+            
+            if (response.ok) {
+                const results = await response.json();
+                displayNutritionResults(results.results);
+                AppState.nutritionResults = results.results;
+                AppState.userProfile = formData;
+                saveToLocalStorage('userProfile', formData);
+                saveToLocalStorage('nutritionResults', results.results);
+            } else if (response.status === 401) {
+                // Token expired or invalid, clear it and fall back to client-side
+                clearAuthToken();
+                AppState.isAuthenticated = false;
+                showAlert('Session expired. Calculating locally.', 'warning');
+                throw new Error('Authentication expired');
+            } else {
+                throw new Error('Failed to calculate nutrition needs');
+            }
         } else {
-            throw new Error('Failed to calculate nutrition needs');
+            // No token, fall back to client-side calculation
+            throw new Error('No authentication token');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -144,6 +156,12 @@ async function handleNutritionCalculation(event) {
         displayNutritionResults(results);
         AppState.nutritionResults = results;
         AppState.userProfile = formData;
+        saveToLocalStorage('userProfile', formData);
+        saveToLocalStorage('nutritionResults', results);
+        
+        if (!getAuthToken()) {
+            showAlert('💡 Login to save your nutrition data to the cloud!', 'info');
+        }
     }
     
     hideLoading();
@@ -1313,6 +1331,30 @@ function loadUserProfile() {
     }
 }
 
+// === JWT TOKEN MANAGEMENT ===
+
+function saveAuthToken(token) {
+    localStorage.setItem('smarteats_auth_token', token);
+}
+
+function getAuthToken() {
+    return localStorage.getItem('smarteats_auth_token');
+}
+
+function clearAuthToken() {
+    localStorage.removeItem('smarteats_auth_token');
+}
+
+function getAuthHeaders() {
+    const token = getAuthToken();
+    return token ? {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    } : {
+        'Content-Type': 'application/json'
+    };
+}
+
 // === AUTHENTICATION SYSTEM ===
 
 function setupAuthentication() {
@@ -1394,24 +1436,48 @@ async function handleLogin(event) {
     showLoading('Signing you in...');
     
     try {
-        // For demo purposes, simulate login
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
         
-        const user = {
-            id: 'user_' + Date.now(),
-            name: email.split('@')[0],
-            email: email,
-            joinDate: new Date().toISOString()
-        };
+        const data = await response.json();
         
-        loginUser(user);
-        closeLoginModal();
-        showWelcomeModal();
-        showAlert('🎉 Welcome back! Ready to continue your health journey?', 'success');
+        if (response.ok && data.success) {
+            // Save JWT token
+            saveAuthToken(data.access_token);
+            
+            // Create user object from API response
+            const user = {
+                id: data.user.id,
+                name: data.user.name,
+                email: data.user.email,
+                is_premium: data.user.is_premium,
+                joinDate: new Date().toISOString()
+            };
+            
+            loginUser(user);
+            closeLoginModal();
+            showWelcomeModal();
+            showAlert('🎉 Welcome back! Ready to continue your health journey?', 'success');
+            
+            // Reset form
+            document.getElementById('loginForm').reset();
+            
+        } else {
+            // Handle API error response
+            showAlert(data.message || 'Login failed. Please check your credentials.', 'error');
+        }
         
     } catch (error) {
         console.error('Login error:', error);
-        showAlert('Login failed. Please try again.', 'error');
+        showAlert('Network error. Please check your connection and try again.', 'error');
     }
     
     hideLoading();
@@ -1444,24 +1510,53 @@ async function handleSignup(event) {
     showLoading('Creating your account...');
     
     try {
-        // For demo purposes, simulate signup
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                password: password
+            })
+        });
         
-        const user = {
-            id: 'user_' + Date.now(),
-            name: name,
-            email: email,
-            joinDate: new Date().toISOString()
-        };
+        const data = await response.json();
         
-        loginUser(user);
-        closeSignupModal();
-        showWelcomeModal();
-        showAlert('🎉 Welcome to SmartEats! Your account has been created successfully.', 'success');
+        if (response.ok && data.success) {
+            // Save JWT token
+            saveAuthToken(data.access_token);
+            
+            // Create user object from API response
+            const user = {
+                id: data.user.id,
+                name: data.user.name,
+                email: data.user.email,
+                is_premium: false, // New users are not premium by default
+                joinDate: new Date().toISOString()
+            };
+            
+            loginUser(user);
+            closeSignupModal();
+            showWelcomeModal();
+            showAlert('🎉 Welcome to SmartEats! Your account has been created successfully.', 'success');
+            
+            // Reset form
+            document.getElementById('signupForm').reset();
+            
+        } else {
+            // Handle API error response
+            if (response.status === 409) {
+                showAlert('An account with this email already exists. Please try logging in.', 'error');
+            } else {
+                showAlert(data.message || 'Registration failed. Please try again.', 'error');
+            }
+        }
         
     } catch (error) {
         console.error('Signup error:', error);
-        showAlert('Signup failed. Please try again.', 'error');
+        showAlert('Network error. Please check your connection and try again.', 'error');
     }
     
     hideLoading();
