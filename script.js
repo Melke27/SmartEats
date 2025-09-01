@@ -16,7 +16,12 @@ const AppState = {
     nutritionResults: null,
     progressChart: null,
     meals: [],
-    chatHistory: []
+    chatHistory: [],
+    isAuthenticated: false,
+    currentUser: null,
+    goals: {},
+    progressData: {},
+    mealLogs: []
 };
 
 // Initialize Application
@@ -27,10 +32,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     setupTabNavigation();
     setupNutritionForm();
+    setupAuthentication();
     initializeDashboard();
     loadUserProfile();
     setupChat();
     setupAdvancedFeatures();
+    checkAuthStatus();
     
     console.log('🍎 SmartEats App Initialized - Fighting Hunger & Promoting Health!');
 }
@@ -1139,8 +1146,327 @@ function loadUserProfile() {
     }
 }
 
+// === AUTHENTICATION SYSTEM ===
+
+function setupAuthentication() {
+    // Setup form submissions
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+    
+    if (signupForm) {
+        signupForm.addEventListener('submit', handleSignup);
+    }
+    
+    // Setup modal close on click outside
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('auth-modal')) {
+            closeAuthModals();
+        }
+    });
+}
+
+function checkAuthStatus() {
+    const savedUser = getFromLocalStorage('currentUser');
+    if (savedUser) {
+        loginUser(savedUser);
+    }
+}
+
+function openLoginModal() {
+    document.getElementById('loginModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function openSignupModal() {
+    document.getElementById('signupModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function closeSignupModal() {
+    document.getElementById('signupModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function closeAuthModals() {
+    closeLoginModal();
+    closeSignupModal();
+    document.getElementById('welcomeModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function switchToSignup() {
+    closeLoginModal();
+    openSignupModal();
+}
+
+function switchToLogin() {
+    closeSignupModal();
+    openLoginModal();
+}
+
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!email || !password) {
+        showAlert('Please fill in all fields.', 'error');
+        return;
+    }
+    
+    showLoading('Signing you in...');
+    
+    try {
+        // For demo purposes, simulate login
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const user = {
+            id: 'user_' + Date.now(),
+            name: email.split('@')[0],
+            email: email,
+            joinDate: new Date().toISOString()
+        };
+        
+        loginUser(user);
+        closeLoginModal();
+        showWelcomeModal();
+        showAlert('🎉 Welcome back! Ready to continue your health journey?', 'success');
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        showAlert('Login failed. Please try again.', 'error');
+    }
+    
+    hideLoading();
+}
+
+async function handleSignup(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const agreeTerms = document.getElementById('agreeTerms').checked;
+    
+    if (!name || !email || !password || !confirmPassword) {
+        showAlert('Please fill in all fields.', 'error');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        showAlert('Passwords do not match.', 'error');
+        return;
+    }
+    
+    if (!agreeTerms) {
+        showAlert('Please agree to the Terms of Service.', 'error');
+        return;
+    }
+    
+    showLoading('Creating your account...');
+    
+    try {
+        // For demo purposes, simulate signup
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const user = {
+            id: 'user_' + Date.now(),
+            name: name,
+            email: email,
+            joinDate: new Date().toISOString()
+        };
+        
+        loginUser(user);
+        closeSignupModal();
+        showWelcomeModal();
+        showAlert('🎉 Welcome to SmartEats! Your account has been created successfully.', 'success');
+        
+    } catch (error) {
+        console.error('Signup error:', error);
+        showAlert('Signup failed. Please try again.', 'error');
+    }
+    
+    hideLoading();
+}
+
+function loginUser(user) {
+    AppState.isAuthenticated = true;
+    AppState.currentUser = user;
+    saveToLocalStorage('currentUser', user);
+    
+    // Update UI
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('signupBtn').style.display = 'none';
+    document.getElementById('profileBtn').style.display = 'block';
+    document.getElementById('logoutBtn').style.display = 'block';
+    document.getElementById('username').textContent = user.name;
+}
+
+function logout() {
+    AppState.isAuthenticated = false;
+    AppState.currentUser = null;
+    localStorage.removeItem('smarteats_currentUser');
+    
+    // Update UI
+    document.getElementById('loginBtn').style.display = 'block';
+    document.getElementById('signupBtn').style.display = 'block';
+    document.getElementById('profileBtn').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'none';
+    
+    showAlert('You have been logged out. Thanks for using SmartEats!', 'info');
+}
+
+function showWelcomeModal() {
+    document.getElementById('welcomeModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function startOnboarding() {
+    closeAuthModals();
+    switchTab('nutrition');
+    showAlert('Let\'s start by calculating your personalized nutrition needs! 🎯', 'success');
+}
+
+function skipOnboarding() {
+    closeAuthModals();
+    showAlert('You can set up your profile anytime by clicking "My Profile"! 👤', 'info');
+}
+
+function forgotPassword() {
+    const email = prompt('Enter your email address for password reset:');
+    if (email) {
+        showAlert('Password reset link sent to ' + email + ' (demo mode)', 'info');
+    }
+}
+
+function showTerms() {
+    alert('SmartEats Terms of Service (Demo):\n\n- Support UN SDG 2: Zero Hunger\n- Support UN SDG 3: Good Health\n- Use responsibly for health purposes\n- Data privacy respected');
+}
+
+// Enhanced Start Health Journey function
+function startHealthJourney() {
+    if (!AppState.isAuthenticated) {
+        showAlert('Please login or sign up to start your health journey! 🚀', 'info');
+        openSignupModal();
+        return;
+    }
+    
+    // User is authenticated, take them to nutrition calculator
+    switchTab('nutrition');
+    showAlert('Great! Let\'s calculate your personalized nutrition needs to get started! 🎯', 'success');
+    
+    // Scroll to the nutrition form
+    setTimeout(() => {
+        const nutritionSection = document.getElementById('nutrition');
+        if (nutritionSection) {
+            nutritionSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, 500);
+}
+
+// === PROFILE MANAGEMENT ===
+
+function openProfileModal() {
+    if (!AppState.isAuthenticated) {
+        openLoginModal();
+        return;
+    }
+    
+    document.getElementById('profileModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    loadProfileData();
+}
+
+function closeProfileModal() {
+    document.getElementById('profileModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function loadProfileData() {
+    if (AppState.currentUser) {
+        const profileName = document.getElementById('profileName');
+        const profileNameInput = document.getElementById('profileNameInput');
+        const profileEmail = document.getElementById('profileEmail');
+        
+        if (profileName) profileName.textContent = 'Welcome, ' + AppState.currentUser.name + '!';
+        if (profileNameInput) profileNameInput.value = AppState.currentUser.name;
+        if (profileEmail) profileEmail.value = AppState.currentUser.email;
+    }
+    
+    // Load saved profile data
+    const savedProfile = getFromLocalStorage('userProfile');
+    if (savedProfile) {
+        document.getElementById('profileAge').value = savedProfile.age || '';
+        document.getElementById('profileGender').value = savedProfile.gender || '';
+        document.getElementById('profileHeight').value = savedProfile.height || '';
+        document.getElementById('profileWeight').value = savedProfile.weight || '';
+        document.getElementById('profileActivity').value = savedProfile.activity || '';
+    }
+}
+
+function saveProfile() {
+    if (!AppState.isAuthenticated) {
+        showAlert('Please login to save your profile.', 'error');
+        return;
+    }
+    
+    const profileData = {
+        name: document.getElementById('profileNameInput').value,
+        email: document.getElementById('profileEmail').value,
+        age: parseInt(document.getElementById('profileAge').value),
+        gender: document.getElementById('profileGender').value,
+        height: parseFloat(document.getElementById('profileHeight').value),
+        weight: parseFloat(document.getElementById('profileWeight').value),
+        activity: document.getElementById('profileActivity').value
+    };
+    
+    // Update current user
+    AppState.currentUser.name = profileData.name;
+    AppState.currentUser.email = profileData.email;
+    saveToLocalStorage('currentUser', AppState.currentUser);
+    
+    // Save profile data
+    AppState.userProfile = profileData;
+    saveToLocalStorage('userProfile', profileData);
+    
+    // Update header
+    document.getElementById('username').textContent = profileData.name;
+    
+    showAlert('✅ Profile saved successfully!', 'success');
+}
+
+function saveGoals() {
+    const goals = {
+        calorieGoal: parseInt(document.getElementById('calorieGoal').value) || 2000,
+        weightGoal: parseFloat(document.getElementById('weightGoal').value) || 70,
+        waterGoal: parseFloat(document.getElementById('waterGoal').value) || 2.5,
+        dietaryRestrictions: Array.from(document.getElementById('dietaryRestrictions').selectedOptions).map(option => option.value)
+    };
+    
+    AppState.goals = goals;
+    saveToLocalStorage('userGoals', goals);
+    
+    showAlert('🎯 Goals saved successfully!', 'success');
+}
+
+// Enhanced section switching function
+function showSection(sectionName) {
+    switchTab(sectionName);
+}
+
 // Welcome message
 console.log('%c🍎 SmartEats - Hackathon 2025', 'color: #16a085; font-size: 20px; font-weight: bold;');
 console.log('%c🌍 Fighting Hunger (SDG 2) & Promoting Health (SDG 3)', 'color: #27ae60; font-size: 14px;');
 console.log('%c🛠️ Tech Stack: HTML5 + CSS3 + JS + Python Flask + MySQL/MongoDB/Firebase', 'color: #3498db; font-size: 12px;');
-console.log('%c✨ Advanced Features: AI, Community, Wellness, Sustainability', 'color: #9b59b6; font-size: 12px;');
+console.log('%c✨ Advanced Features: AI, Community, Wellness, Sustainability + Authentication', 'color: #9b59b6; font-size: 12px;');

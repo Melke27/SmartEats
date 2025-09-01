@@ -11,12 +11,23 @@
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <div class="header-content">
-                <h1 class="logo">🍎 SmartEats</h1>
-                <button class="user-profile-btn" onclick="openProfileModal()">
-                    👤 My Profile
-                </button>
-            </div>
+                <div class="header-content">
+                    <h1 class="logo">🍎 SmartEats</h1>
+                    <div class="header-buttons">
+                        <button class="auth-btn" id="loginBtn" onclick="openLoginModal()" style="display: block;">
+                            🔐 Login
+                        </button>
+                        <button class="auth-btn" id="signupBtn" onclick="openSignupModal()" style="display: block;">
+                            📝 Sign Up
+                        </button>
+                        <button class="user-profile-btn" id="profileBtn" onclick="openProfileModal()" style="display: none;">
+                            👤 <span id="username">My Profile</span>
+                        </button>
+                        <button class="auth-btn" id="logoutBtn" onclick="logout()" style="display: none;">
+                            🚪 Logout
+                        </button>
+                    </div>
+                </div>
             <p class="tagline">Fighting Hunger & Promoting Health through Smart Nutrition | SDG 2 & 3</p>
             <nav class="nav">
                 <button class="nav-btn active" data-tab="dashboard">📊 Dashboard</button>
@@ -53,7 +64,7 @@
                     <div class="hero-content">
                         <h1 class="hero-title">Welcome to SmartEats!</h1>
                         <p class="hero-subtitle">Your AI-powered nutrition companion fighting hunger and promoting health worldwide</p>
-                        <button class="hero-cta" onclick="showSection('nutrition')">Start Your Health Journey</button>
+                        <button class="hero-cta" onclick="startHealthJourney()">🚀 Start Your Health Journey</button>
                     </div>
                 </div>
 
@@ -602,6 +613,112 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Authentication Modals -->
+    <div id="loginModal" class="auth-modal" style="display: none;">
+        <div class="auth-modal-content">
+            <button class="close-btn" onclick="closeLoginModal()">&times;</button>
+            <div class="auth-header">
+                <h2>🔐 Welcome Back!</h2>
+                <p>Sign in to continue your health journey</p>
+            </div>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">📧 Email</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">🔒 Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn auth-btn-submit">🚀 Login & Start Journey</button>
+            </form>
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="#" onclick="switchToSignup()">Sign up here</a></p>
+                <p><a href="#" onclick="forgotPassword()">Forgot password?</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="signupModal" class="auth-modal" style="display: none;">
+        <div class="auth-modal-content">
+            <button class="close-btn" onclick="closeSignupModal()">&times;</button>
+            <div class="auth-header">
+                <h2>📝 Join SmartEats!</h2>
+                <p>Create your account and start fighting hunger & promoting health</p>
+            </div>
+            <form id="signupForm" class="auth-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="signupName">👤 Full Name</label>
+                        <input type="text" id="signupName" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">📧 Email</label>
+                        <input type="email" id="signupEmail" placeholder="your@email.com" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">🔒 Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a strong password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">🔐 Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="agreeTerms" required>
+                        <span class="checkmark"></span>
+                        I agree to the <a href="#" onclick="showTerms()">Terms of Service</a> and support SDG 2 & 3
+                    </label>
+                </div>
+                <button type="submit" class="btn auth-btn-submit">🎯 Create Account & Begin</button>
+            </form>
+            <div class="auth-footer">
+                <p>Already have an account? <a href="#" onclick="switchToLogin()">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Modal for New Users -->
+    <div id="welcomeModal" class="auth-modal" style="display: none;">
+        <div class="auth-modal-content">
+            <div class="welcome-header">
+                <h2>🎉 Welcome to SmartEats!</h2>
+                <p>Let's set up your personalized nutrition profile</p>
+            </div>
+            <div class="welcome-content">
+                <div class="welcome-step">
+                    <div class="step-icon">🎯</div>
+                    <h3>Set Your Goals</h3>
+                    <p>Define your health and nutrition objectives</p>
+                </div>
+                <div class="welcome-step">
+                    <div class="step-icon">📊</div>
+                    <h3>Track Progress</h3>
+                    <p>Monitor your journey with our advanced analytics</p>
+                </div>
+                <div class="welcome-step">
+                    <div class="step-icon">🤝</div>
+                    <h3>Join Community</h3>
+                    <p>Connect with others fighting hunger & promoting health</p>
+                </div>
+            </div>
+            <div class="welcome-actions">
+                <button onclick="startOnboarding()" class="btn auth-btn-submit">🚀 Start My Journey</button>
+                <button onclick="skipOnboarding()" class="btn btn-secondary">Skip for now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner">🍎</div>
+            <p id="loadingMessage">Loading your nutrition data...</p>
         </div>
     </div>
 
