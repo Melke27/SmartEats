@@ -2,8 +2,8 @@ services:
   - type: web
     name: smarteats-api
     env: python
-    buildCommand: pip install Flask Flask-CORS gunicorn Flask-SQLAlchemy Flask-JWT-Extended
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    buildCommand: pip install -r requirements_production.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     envVars:
       - key: FLASK_ENV
         value: production
@@ -11,3 +11,5 @@ services:
         generateValue: true
       - key: PORT
         value: 10000
+      - key: DATABASE_URL
+        value: sqlite:///smarteats.db

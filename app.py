@@ -256,8 +256,30 @@ ai_bot = AINutritionBot()
 
 @app.route('/')
 def home():
-    """Serve the main application"""
-    return render_template('index.html')
+    """API health check endpoint"""
+    return jsonify({
+        'success': True,
+        'message': 'SmartEats API is running!',
+        'version': '2.0.0',
+        'sdg_goals': ['SDG 2: Zero Hunger', 'SDG 3: Good Health and Well-Being'],
+        'features': [
+            'Nutrition Calculator',
+            'AI Chat Assistant', 
+            'Meal Logging',
+            'Community Features',
+            'Wellness Tracking',
+            'Sustainability Metrics'
+        ],
+        'endpoints': {
+            'auth': '/api/auth/login, /api/auth/register',
+            'nutrition': '/api/nutrition/calculate, /api/nutrition/lookup',
+            'meals': '/api/meals/log, /api/meals/today',
+            'chat': '/api/chat',
+            'wellness': '/api/wellness/sleep-stress',
+            'community': '/api/community/leaderboard, /api/challenges/weekly'
+        },
+        'status': 'healthy'
+    })
 
 # ===== AUTHENTICATION ROUTES =====
 

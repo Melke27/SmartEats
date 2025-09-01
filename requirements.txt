@@ -11,6 +11,9 @@ Werkzeug==2.3.7
 
 # Database
 SQLAlchemy==2.0.20
+mysql-connector-python==8.2.0
+pymongo==4.6.0
+firebase-admin==6.4.0
 
 # Security & Authentication
 PyJWT==2.8.0
