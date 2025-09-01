@@ -357,7 +357,7 @@ function displaySampleRecipes() {
             calories: 420,
             protein: 35,
             prepTime: 20,
-            image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop'
+            image: 'data:image/svg+xml,%3Csvg width="300" height="200" xmlns="http://www.w3.org/2000/svg"%3E%3Crect width="300" height="200" fill="%2316a085"/%3E%3Ctext x="150" y="100" font-family="Arial" font-size="20" fill="white" text-anchor="middle" dy="8"%3E🥗 Protein Salad%3C/text%3E%3C/svg%3E'
         },
         {
             id: 'fish-rice',
@@ -366,7 +366,7 @@ function displaySampleRecipes() {
             calories: 380,
             protein: 28,
             prepTime: 30,
-            image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&h=200&fit=crop'
+            image: 'data:image/svg+xml,%3Csvg width="300" height="200" xmlns="http://www.w3.org/2000/svg"%3E%3Crect width="300" height="200" fill="%23e67e22"/%3E%3Ctext x="150" y="95" font-family="Arial" font-size="16" fill="white" text-anchor="middle" dy="8"%3E🐟 Salmon &%3C/text%3E%3Ctext x="150" y="115" font-family="Arial" font-size="16" fill="white" text-anchor="middle" dy="8"%3EBrown Rice%3C/text%3E%3C/svg%3E'
         }
     ];
     
@@ -700,8 +700,6 @@ function generateLocalResponse(message) {
         
         default: "🍎 **I'M YOUR NUTRITION ASSISTANT!**\n\nI'm here to help with:\n• 🥗 **Nutrition questions** (calories, protein, vitamins)\n• 🍽️ **Healthy recipes** and meal ideas\n• ⚖️ **Weight management** strategies\n• 💪 **Wellness tips** (sleep, stress, hydration)\n• 🏃‍♀️ **Exercise nutrition** guidance\n\n**Try asking:**\n• \"How much protein do I need?\"\n• \"What are healthy breakfast ideas?\"\n• \"How can I lose weight safely?\"\n• \"What foods help with stress?\"\n\n*I'm always learning to help you better! 🌟*"
     };
-    
-    const lowerMessage = message.toLowerCase();
     
     // Check for multiple keywords and return the most specific match
     const matchedKeys = [];
