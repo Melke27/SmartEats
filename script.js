@@ -515,21 +515,88 @@ function removeTypingIndicator() {
 
 function generateLocalResponse(message) {
     const responses = {
-        protein: "For optimal health, aim for 0.8-2.2g of protein per kg of body weight daily. Good sources include lean meats, fish, eggs, legumes, and dairy products. 🥩",
-        water: "Drink at least 8 glasses (2L) of water daily. Your needs may increase with exercise or hot weather. Proper hydration supports metabolism! 💧",
-        weight: "Healthy weight loss is 0.5-1kg per week. Focus on a balanced diet with moderate calorie deficit and regular exercise. ⚖️",
-        calories: "Daily calorie needs depend on age, gender, weight, height, and activity level. Use our nutrition calculator! 🔥",
-        vegetables: "Aim for 5-9 servings of fruits and vegetables daily. They provide essential vitamins, minerals, and fiber. Eat the rainbow! 🥬🥕",
-        exercise: "Combine 150 minutes of moderate cardio weekly with 2-3 strength training sessions. Exercise boosts metabolism! 💪",
-        default: "I'm here to help with nutrition questions! Ask me about calories, protein, healthy recipes, weight management, or wellness tips. 🍎"
+        // Macronutrients
+        protein: "🥩 **PROTEIN GUIDANCE:**\n\n• **Daily needs:** 0.8-2.2g per kg body weight\n• **Athletes:** Up to 2.2g/kg for muscle building\n• **Best sources:** Lean meats, fish, eggs, legumes, Greek yogurt, quinoa\n• **Tip:** Spread protein throughout the day for better absorption!\n\n*Would you like specific protein-rich recipe ideas?*",
+        
+        carbs: "🍞 **CARBOHYDRATE WISDOM:**\n\n• **Choose complex carbs:** Whole grains, oats, sweet potatoes, legumes\n• **Timing matters:** Have carbs pre/post workout for energy\n• **Portion guide:** 1/2 your plate should be complex carbs & vegetables\n• **Avoid:** Refined sugars, white bread, processed foods\n\n*Need meal ideas with healthy carbs?*",
+        
+        fat: "🥑 **HEALTHY FATS GUIDE:**\n\n• **Good fats:** Avocados, nuts, olive oil, fatty fish, seeds\n• **Daily amount:** 20-35% of total calories\n• **Benefits:** Brain health, hormone production, vitamin absorption\n• **Limit:** Saturated fats, avoid trans fats completely\n\n*Want omega-3 rich meal suggestions?*",
+        
+        // Hydration & Water
+        water: "💧 **HYDRATION ESSENTIALS:**\n\n• **Basic rule:** 8 glasses (2L) daily minimum\n• **Activity boost:** +500ml per hour of exercise\n• **Climate factor:** More in hot/humid weather\n• **Quality signs:** Pale yellow urine, good energy levels\n• **Flavor tips:** Add lemon, cucumber, or mint!\n\n*Track your intake with our water logging feature!*",
+        
+        hydration: "💦 **STAY HYDRATED:**\n\n• **Morning start:** Drink 2 glasses upon waking\n• **Before meals:** 1 glass 30 minutes before eating\n• **During exercise:** Sip every 15-20 minutes\n• **Signs of dehydration:** Headache, fatigue, dark urine\n• **Hydrating foods:** Watermelon, cucumber, oranges, soup\n\n*Set hydration reminders in your profile!*",
+        
+        // Weight Management
+        weight: "⚖️ **SUSTAINABLE WEIGHT MANAGEMENT:**\n\n• **Safe rate:** 0.5-1kg per week maximum\n• **Calorie deficit:** 500-750 calories below maintenance\n• **Focus on:** Whole foods, portion control, regular meals\n• **Exercise combo:** Cardio + strength training\n• **Track progress:** Weight + measurements + how you feel\n\n*Use our nutrition calculator for personalized goals!*",
+        
+        "lose weight": "🎯 **WEIGHT LOSS STRATEGY:**\n\n• **Create deficit:** Eat less + move more (but safely!)\n• **Meal timing:** Don't skip meals, eat every 3-4 hours\n• **Protein priority:** Keeps you full and preserves muscle\n• **Sleep matters:** 7-9 hours for hormone balance\n• **Be patient:** Healthy loss takes time but lasts!\n\n*Start with our personalized nutrition plan!*",
+        
+        "gain weight": "💪 **HEALTHY WEIGHT GAIN:**\n\n• **Surplus needed:** 300-500 calories above maintenance\n• **Quality calories:** Nuts, avocado, lean meats, whole grains\n• **Frequent meals:** 5-6 smaller meals daily\n• **Strength training:** Build muscle, not just fat\n• **Healthy fats:** Easy way to add calories\n\n*Let's calculate your target calories!*",
+        
+        // Specific Nutrients
+        calories: "🔥 **CALORIE WISDOM:**\n\n• **Individual needs:** Vary by age, gender, activity, goals\n• **Quality matters:** 100 calories of apple ≠ 100 calories of candy\n• **Don't go too low:** Minimum 1200 for women, 1500 for men\n• **Track trends:** Weekly averages, not daily perfection\n• **Listen to body:** Hunger and energy are important signals\n\n*Use our calculator for your personalized needs!*",
+        
+        fiber: "🌾 **FIBER BENEFITS:**\n\n• **Daily goal:** 25g (women), 35g (men)\n• **Sources:** Beans, berries, vegetables, whole grains\n• **Benefits:** Better digestion, heart health, blood sugar control\n• **Increase slowly:** Avoid digestive discomfort\n• **Drink water:** Fiber needs fluid to work properly\n\n*Need high-fiber recipe ideas?*",
+        
+        vitamins: "🌈 **VITAMIN ESSENTIALS:**\n\n• **Eat the rainbow:** Different colors = different nutrients\n• **Key players:** A, C, D, E, K, B-complex\n• **Food first:** Whole foods better than supplements\n• **Seasonal eating:** Fresh, local produce when possible\n• **Storage tips:** Proper storage preserves nutrients\n\n*Ask about specific vitamins for detailed info!*",
+        
+        // Food Categories
+        vegetables: "🥬 **VEGETABLE POWER:**\n\n• **Daily goal:** 5-9 servings (2-4 cups)\n• **Variety is key:** Different colors provide different nutrients\n• **Cooking methods:** Steam, roast, or eat raw for max nutrition\n• **Easy additions:** Smoothies, soups, stir-fries\n• **Seasonal picks:** Fresher, cheaper, more nutritious\n\n*Want vegetable-packed recipe suggestions?*",
+        
+        fruits: "🍎 **FRUIT WISDOM:**\n\n• **Daily serving:** 2-4 pieces or cups\n• **Whole over juice:** More fiber, less sugar spike\n• **Berry power:** Highest antioxidants, lower sugar\n• **Timing tip:** Great pre-workout energy\n• **Frozen option:** Just as nutritious as fresh\n\n*Looking for low-sugar fruit options?*",
+        
+        snacks: "🥜 **SMART SNACKING:**\n\n• **Balanced combo:** Protein + healthy carbs/fats\n• **Great options:** Apple + almond butter, Greek yogurt + berries\n• **Portion control:** Pre-portion to avoid overeating\n• **Timing:** Between meals when truly hungry\n• **Avoid:** Processed snacks, mindless eating\n\n*Want personalized snack suggestions?*",
+        
+        // Exercise & Nutrition
+        exercise: "💪 **FITNESS NUTRITION:**\n\n• **Pre-workout:** Light carbs 30-60 minutes before\n• **Post-workout:** Protein + carbs within 30 minutes\n• **Hydration:** Drink before, during, and after\n• **Weekly goal:** 150 min moderate or 75 min vigorous cardio\n• **Strength training:** 2-3 times per week\n\n*Need pre/post workout meal ideas?*",
+        
+        "muscle building": "🏋️ **MUSCLE BUILDING NUTRITION:**\n\n• **Protein timing:** 20-30g per meal, especially post-workout\n• **Calorie surplus:** Slight surplus (200-500 calories)\n• **Carb timing:** Around workouts for energy and recovery\n• **Recovery foods:** Chocolate milk, protein smoothies\n• **Consistency:** Regular meals and workout schedule\n\n*Want a muscle-building meal plan?*",
+        
+        // Meal Planning
+        breakfast: "🌅 **BREAKFAST EXCELLENCE:**\n\n• **Never skip:** Kickstarts metabolism and brain function\n• **Protein power:** Keeps you full longer\n• **Great options:** Oatmeal + nuts, Greek yogurt + fruit, eggs + vegetables\n• **Prep ahead:** Overnight oats, egg muffins\n• **Balance:** Protein + complex carbs + healthy fats\n\n*Want quick breakfast recipes?*",
+        
+        "meal prep": "📦 **MEAL PREP SUCCESS:**\n\n• **Start simple:** 2-3 recipes, make in batches\n• **Storage:** Glass containers, proper portions\n• **Timeline:** 1-2 hours on weekends\n• **Variety:** Mix proteins, grains, and vegetables\n• **Safety:** Proper cooling and refrigeration\n\n*Need beginner-friendly prep recipes?*",
+        
+        // Health Conditions
+        diabetes: "🩺 **DIABETES-FRIENDLY EATING:**\n\n• **Carb awareness:** Count and distribute throughout day\n• **Fiber focus:** Slows sugar absorption\n• **Protein pairing:** Helps stabilize blood sugar\n• **Regular meals:** Prevents blood sugar spikes/drops\n• **Monitor:** Work with healthcare team\n\n*Always consult your doctor for medical advice!*",
+        
+        "heart health": "❤️ **HEART-HEALTHY CHOICES:**\n\n• **Mediterranean style:** Olive oil, fish, nuts, vegetables\n• **Limit sodium:** <2300mg daily (1 tsp salt)\n• **Omega-3s:** Fatty fish 2x per week\n• **Fiber rich:** Oats, beans, fruits, vegetables\n• **Limit saturated fat:** <10% of daily calories\n\n*Want heart-healthy recipe ideas?*",
+        
+        // Special Situations
+        pregnancy: "🤱 **PREGNANCY NUTRITION:**\n\n• **Extra calories:** +340 (2nd tri), +450 (3rd tri)\n• **Folic acid:** Leafy greens, fortified grains\n• **Iron rich:** Lean meat, beans, spinach\n• **Calcium:** Dairy, fortified alternatives\n• **Avoid:** Raw fish, unpasteurized products, excess caffeine\n\n*Please consult your healthcare provider!*",
+        
+        stress: "😌 **STRESS & NUTRITION:**\n\n• **Stress busters:** Dark chocolate, green tea, berries\n• **Magnesium:** Nuts, seeds, leafy greens\n• **B vitamins:** Whole grains, eggs, legumes\n• **Avoid:** Excess caffeine, alcohol, sugar\n• **Regular meals:** Prevents blood sugar stress\n\n*Try our wellness tracking features!*",
+        
+        sleep: "😴 **SLEEP NUTRITION:**\n\n• **Light dinner:** 2-3 hours before bed\n• **Sleep promoters:** Cherries, almonds, turkey\n• **Avoid:** Large meals, caffeine, alcohol before bed\n• **Magnesium:** Natural sleep aid in nuts, seeds\n• **Tryptophan:** Turkey, milk, bananas\n\n*Track sleep in our wellness section!*",
+        
+        // Kitchen & Cooking
+        cooking: "👨‍🍳 **HEALTHY COOKING TIPS:**\n\n• **Methods:** Grill, bake, steam, stir-fry vs. deep fry\n• **Seasoning:** Herbs and spices instead of salt\n• **Oil choice:** Olive oil for low heat, avocado for high heat\n• **Meal prep:** Batch cook proteins and grains\n• **Keep simple:** Fresh ingredients need minimal preparation\n\n*Want easy, healthy recipes to start with?*",
+        
+        budget: "💰 **BUDGET-FRIENDLY NUTRITION:**\n\n• **Protein bargains:** Eggs, beans, lentils, canned fish\n• **Bulk buys:** Rice, oats, frozen vegetables\n• **Seasonal produce:** Cheaper and more nutritious\n• **Generic brands:** Same nutrition, lower cost\n• **Cook at home:** Much cheaper than eating out\n\n*Need affordable meal planning help?*",
+        
+        // Encouragement
+        motivation: "🌟 **STAY MOTIVATED:**\n\n• **Small steps:** One healthy choice at a time\n• **Progress tracking:** Celebrate small wins\n• **Community:** Join our challenges and leaderboard\n• **Flexibility:** 80/20 rule - aim for 80% healthy choices\n• **Self-compassion:** Bad days happen, get back on track\n\n*Check out our community features for support!*",
+        
+        help: "🍎 **I'M HERE TO HELP!**\n\nI can provide guidance on:\n• 🥗 **Nutrition basics** (macros, portions, meal timing)\n• 🏃‍♀️ **Fitness nutrition** (pre/post workout, muscle building)\n• ⚖️ **Weight management** (healthy loss/gain strategies)\n• 🥘 **Meal planning** (prep, recipes, budget tips)\n• 💪 **Wellness** (sleep, stress, hydration)\n• 🏥 **Health conditions** (general guidance - see doctor!)\n\n*Ask me anything specific or explore our app features!*",
+        
+        default: "🍎 **I'M YOUR NUTRITION ASSISTANT!**\n\nI'm here to help with:\n• 🥗 **Nutrition questions** (calories, protein, vitamins)\n• 🍽️ **Healthy recipes** and meal ideas\n• ⚖️ **Weight management** strategies\n• 💪 **Wellness tips** (sleep, stress, hydration)\n• 🏃‍♀️ **Exercise nutrition** guidance\n\n**Try asking:**\n• \"How much protein do I need?\"\n• \"What are healthy breakfast ideas?\"\n• \"How can I lose weight safely?\"\n• \"What foods help with stress?\"\n\n*I'm always learning to help you better! 🌟*"
     };
     
     const lowerMessage = message.toLowerCase();
     
+    // Check for multiple keywords and return the most specific match
+    const matchedKeys = [];
     for (const [key, response] of Object.entries(responses)) {
         if (key !== 'default' && lowerMessage.includes(key)) {
-            return response;
+            matchedKeys.push({ key, response, specificity: key.length });
         }
+    }
+    
+    // Return most specific match (longest keyword)
+    if (matchedKeys.length > 0) {
+        matchedKeys.sort((a, b) => b.specificity - a.specificity);
+        return matchedKeys[0].response;
     }
     
     return responses.default;
@@ -1464,6 +1531,133 @@ function saveGoals() {
 function showSection(sectionName) {
     switchTab(sectionName);
 }
+
+// Enhanced Dashboard Functions
+function openFoodLookup() {
+    switchTab('meals');
+    setTimeout(() => {
+        const foodInput = document.getElementById('foodLookup');
+        if (foodInput) {
+            foodInput.focus();
+        }
+    }, 300);
+}
+
+function logQuickMeal() {
+    if (!AppState.isAuthenticated) {
+        showAlert('Please login to log meals!', 'info');
+        openLoginModal();
+        return;
+    }
+    
+    const mealOptions = [
+        { name: 'Healthy Breakfast', calories: 350 },
+        { name: 'Nutritious Lunch', calories: 450 },
+        { name: 'Light Snack', calories: 150 },
+        { name: 'Balanced Dinner', calories: 550 }
+    ];
+    
+    const selectedMeal = mealOptions[Math.floor(Math.random() * mealOptions.length)];
+    
+    // Update dashboard stats
+    const currentStats = getFromLocalStorage('todayStats') || {
+        calories: 1250, water: '1.5L', meals: 3
+    };
+    currentStats.calories += selectedMeal.calories;
+    currentStats.meals += 1;
+    saveToLocalStorage('todayStats', currentStats);
+    updateDashboardStats();
+    
+    showAlert(`🍽️ Logged ${selectedMeal.name} (${selectedMeal.calories} calories)`, 'success');
+}
+
+function createDailyProgressChart() {
+    const ctx = document.getElementById('dailyProgressChart');
+    if (!ctx) return;
+    
+    // Enhanced progress chart with macros
+    const chartData = {
+        labels: ['Calories', 'Protein', 'Carbs', 'Fat', 'Water'],
+        datasets: [{
+            label: 'Progress',
+            data: [62, 75, 58, 45, 75], // Percentages
+            backgroundColor: [
+                'rgba(231, 76, 60, 0.8)',   // Calories
+                'rgba(155, 89, 182, 0.8)',  // Protein
+                'rgba(52, 152, 219, 0.8)',  // Carbs
+                'rgba(241, 196, 15, 0.8)',  // Fat
+                'rgba(26, 188, 156, 0.8)'   // Water
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: chartData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Daily Macro Progress'
+                }
+            }
+        }
+    });
+}
+
+function updateHealthScore() {
+    // Calculate health score based on various factors
+    const currentStats = getFromLocalStorage('todayStats') || {};
+    const nutritionResults = getFromLocalStorage('nutritionResults') || {};
+    
+    let score = 85; // Base score
+    
+    // Adjust based on goals completion
+    const caloriesPercent = (currentStats.calories || 1250) / (nutritionResults.calories || 2000);
+    if (caloriesPercent > 0.8 && caloriesPercent < 1.2) score += 5;
+    
+    const healthScoreEl = document.getElementById('healthScore');
+    if (healthScoreEl) {
+        healthScoreEl.textContent = Math.max(0, Math.min(100, score));
+    }
+}
+
+// Tab functionality for profile modal
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        // Profile tab switching
+        const profileTabs = document.querySelectorAll('.profile-tab');
+        profileTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-profile-tab');
+                
+                // Update tab buttons
+                profileTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update tab content
+                document.querySelectorAll('.profile-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                const targetContent = document.getElementById('profile' + targetTab.charAt(0).toUpperCase() + targetTab.slice(1));
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+        
+        // Initialize dashboard charts
+        createDailyProgressChart();
+        updateHealthScore();
+    }, 500);
+});
 
 // Welcome message
 console.log('%c🍎 SmartEats - Hackathon 2025', 'color: #16a085; font-size: 20px; font-weight: bold;');

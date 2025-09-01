@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍎 SmartEats - SDG Nutrition Platform</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="enhanced.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -63,32 +64,154 @@
                 <div class="hero-section">
                     <div class="hero-content">
                         <h1 class="hero-title">Welcome to SmartEats!</h1>
-                        <p class="hero-subtitle">Your AI-powered nutrition companion fighting hunger and promoting health worldwide</p>
-                        <button class="hero-cta" onclick="startHealthJourney()">🚀 Start Your Health Journey</button>
+                        <p class="hero-subtitle">AI-powered nutrition platform fighting hunger & promoting health worldwide</p>
+                        <div class="hero-actions">
+                            <button class="hero-cta primary" onclick="startHealthJourney()">🚀 Start Journey</button>
+                            <button class="hero-cta secondary" onclick="showSection('chat')">🤖 Ask AI</button>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="hero-stat">
+                                <span class="hero-stat-number">2.5M+</span>
+                                <span class="hero-stat-label">Users Helped</span>
+                            </div>
+                            <div class="hero-stat">
+                                <span class="hero-stat-number">15K+</span>
+                                <span class="hero-stat-label">Recipes</span>
+                            </div>
+                            <div class="hero-stat">
+                                <span class="hero-stat-number">98%</span>
+                                <span class="hero-stat-label">Success Rate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="showSection('nutrition')">
+                        <div class="action-icon">🧮</div>
+                        <span>Calculate Nutrition</span>
+                    </div>
+                    <div class="quick-action" onclick="openFoodLookup()">
+                        <div class="action-icon">🔍</div>
+                        <span>Food Lookup</span>
+                    </div>
+                    <div class="quick-action" onclick="showSection('meals')">
+                        <div class="action-icon">🍽️</div>
+                        <span>Find Recipes</span>
+                    </div>
+                    <div class="quick-action" onclick="logQuickMeal()">
+                        <div class="action-icon">⚡</div>
+                        <span>Quick Log</span>
                     </div>
                 </div>
 
                 <!-- Statistics Dashboard -->
                 <div class="stats-dashboard">
-                    <div class="stat-card">
+                    <div class="stat-card calories">
                         <div class="stat-icon">🔥</div>
                         <div class="stat-number" id="caloriesConsumed">1,250</div>
-                        <div class="stat-text">Calories Today</div>
+                        <div class="stat-text">Calories</div>
+                        <div class="stat-progress">
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 62%;"></div>
+                            </div>
+                            <span class="progress-label">62% of goal</span>
+                        </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card water">
                         <div class="stat-icon">💧</div>
                         <div class="stat-number" id="waterIntake">1.5L</div>
-                        <div class="stat-text">Water Intake</div>
+                        <div class="stat-text">Water</div>
+                        <div class="stat-progress">
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 75%;"></div>
+                            </div>
+                            <span class="progress-label">75% of goal</span>
+                        </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card meals">
                         <div class="stat-icon">🍽️</div>
                         <div class="stat-number" id="mealsLogged">3</div>
-                        <div class="stat-text">Meals Logged</div>
+                        <div class="stat-text">Meals</div>
+                        <div class="stat-progress">
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 100%;"></div>
+                            </div>
+                            <span class="progress-label">Goal reached!</span>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📈</div>
+                    <div class="stat-card protein">
+                        <div class="stat-icon">🥩</div>
                         <div class="stat-number" id="proteinProgress">75%</div>
-                        <div class="stat-text">Protein Goal</div>
+                        <div class="stat-text">Protein</div>
+                        <div class="stat-progress">
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 75%;"></div>
+                            </div>
+                            <span class="progress-label">On track</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Overview -->
+                <div class="today-overview">
+                    <div class="overview-card">
+                        <h3>📊 Today's Progress</h3>
+                        <div class="progress-chart-container">
+                            <canvas id="dailyProgressChart" width="300" height="150"></canvas>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <h3>🎯 Health Score</h3>
+                        <div class="health-score">
+                            <div class="score-circle">
+                                <span class="score-number" id="healthScore">85</span>
+                                <span class="score-label">Health Score</span>
+                            </div>
+                            <div class="score-breakdown">
+                                <div class="score-item">
+                                    <span class="score-name">Nutrition</span>
+                                    <span class="score-value">90/100</span>
+                                </div>
+                                <div class="score-item">
+                                    <span class="score-name">Hydration</span>
+                                    <span class="score-value">80/100</span>
+                                </div>
+                                <div class="score-item">
+                                    <span class="score-name">Activity</span>
+                                    <span class="score-value">85/100</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity">
+                    <h3>📈 Recent Activity</h3>
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <div class="activity-icon success">✅</div>
+                            <div class="activity-content">
+                                <p><strong>Nutrition goal achieved!</strong></p>
+                                <span class="activity-time">2 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon info">🍎</div>
+                            <div class="activity-content">
+                                <p>Logged healthy breakfast - 420 calories</p>
+                                <span class="activity-time">4 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon achievement">🏆</div>
+                            <div class="activity-content">
+                                <p><strong>Completed Hydration Hero challenge!</strong></p>
+                                <span class="activity-time">Yesterday</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
