@@ -4,7 +4,7 @@ Hackathon 2025 - SDG 2 & SDG 3 Solution
 Advanced Flask API with AI, Community, and Wellness Features
 """
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
@@ -256,6 +256,11 @@ ai_bot = AINutritionBot()
 
 @app.route('/')
 def home():
+    """Serve the frontend HTML"""
+    return send_from_directory('.', 'index.html')
+
+@app.route('/api')
+def api_health():
     """API health check endpoint"""
     return jsonify({
         'success': True,
@@ -280,6 +285,11 @@ def home():
         },
         'status': 'healthy'
     })
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    """Serve static files"""
+    return send_from_directory('.', filename)
 
 # ===== AUTHENTICATION ROUTES =====
 
