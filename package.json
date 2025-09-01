@@ -1,0 +1,32 @@
+{
+  "name": "smarteats",
+  "version": "2.0.0",
+  "description": "AI-Powered Nutrition & Wellness Platform - SDG 2 & SDG 3 Solution",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "start:frontend": "python -m http.server 8000",
+    "start:backend": "python app.py",
+    "build": "echo 'SmartEats built successfully - Ready for deployment!'",
+    "dev": "python -m http.server 8000",
+    "serve": "python -m http.server 8000"
+  },
+  "keywords": [
+    "nutrition",
+    "ai",
+    "wellness",
+    "sdg",
+    "health",
+    "sustainability",
+    "hackathon"
+  ],
+  "author": "SmartEats Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Melke27/SmartEats.git"
+  },
+  "engines": {
+    "python": ">=3.8"
+  }
+}
