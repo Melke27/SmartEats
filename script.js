@@ -513,7 +513,107 @@ function removeTypingIndicator() {
     }
 }
 
+// Advanced Language Detection and Support
+function detectLanguage(message) {
+    const languagePatterns = {
+        'ar': /[؀-ۿ]/, // Arabic
+        'am': /[ሀ-፿]/, // Amharic
+        'sw': /\b(habari|chakula|afya|maji|protein)\b/i, // Swahili keywords
+        'fr': /\b(bonjour|nutrition|santé|eau|protéine)\b/i, // French keywords
+        'es': /\b(hola|nutrición|salud|agua|proteína)\b/i, // Spanish keywords
+        'pt': /\b(olá|nutrição|saúde|água|proteína)\b/i, // Portuguese keywords
+        'hi': /[ऀ-ॿ]/, // Hindi
+        'zh': /[一-鿿]/, // Chinese
+        'ja': /[぀-ゟ゠-ヿ一-龯]/, // Japanese
+        'ko': /[가-힯]/, // Korean
+        'ru': /[Ѐ-ӿ]/, // Russian
+        'de': /\b(hallo|ernährung|gesundheit|wasser|protein)\b/i, // German keywords
+        'it': /\b(ciao|nutrizione|salute|acqua|proteina)\b/i, // Italian keywords
+    };
+    
+    for (const [lang, pattern] of Object.entries(languagePatterns)) {
+        if (pattern.test(message)) {
+            return lang;
+        }
+    }
+    return 'en'; // Default to English
+}
+
+function getMultilingualResponse(topic, language) {
+    const multilingualResponses = {
+        // PROTEIN responses in multiple languages
+        protein: {
+            'en': "🥩 **PROTEIN GUIDANCE:**\n\n• **Daily needs:** 0.8-2.2g per kg body weight\n• **Athletes:** Up to 2.2g/kg for muscle building\n• **Best sources:** Lean meats, fish, eggs, legumes, Greek yogurt, quinoa\n• **Tip:** Spread protein throughout the day for better absorption!\n\n*Would you like specific protein-rich recipe ideas?*",
+            'ar': "🥩 **دليل البروتين:**\n\n• **الحاجة اليومية:** 0.8-2.2 جرام لكل كيلو من وزن الجسم\n• **للرياضيين:** حتى 2.2 جرام/كيلو لبناء العضلات\n• **أفضل المصادر:** اللحوم الخالية من الدهون، السمك، البيض، البقوليات، الزبادي اليوناني، الكينوا\n• **نصيحة:** وزع البروتين على مدار اليوم للحصول على امتصاص أفضل!\n\n*هل تريد أفكار وصفات غنية بالبروتين؟*",
+            'fr': "🥩 **GUIDE PROTÉINES:**\n\n• **Besoins quotidiens:** 0,8-2,2g par kg de poids corporel\n• **Athlètes:** Jusqu'à 2,2g/kg pour la construction musculaire\n• **Meilleures sources:** Viandes maigres, poisson, œufs, légumineuses, yaourt grec, quinoa\n• **Conseil:** Répartissez les protéines tout au long de la journée pour une meilleure absorption!\n\n*Voulez-vous des idées de recettes riches en protéines?*",
+            'es': "🥩 **GUÍA DE PROTEÍNAS:**\n\n• **Necesidades diarias:** 0.8-2.2g por kg de peso corporal\n• **Atletas:** Hasta 2.2g/kg para construcción muscular\n• **Mejores fuentes:** Carnes magras, pescado, huevos, legumbres, yogur griego, quinoa\n• **Consejo:** ¡Distribuye la proteína durante el día para mejor absorción!\n\n*¿Quieres ideas de recetas ricas en proteínas?*",
+            'sw': "🥩 **MWONGOZO WA PROTINI:**\n\n• **Mahitaji ya kila siku:** 0.8-2.2g kwa kilo ya uzito wa mwili\n• **Wanariadha:** Hadi 2.2g/kilo kwa kujenga misuli\n• **Vyanzo bora:** Nyama konda, samaki, mayai, kunde, yogurt ya Kigiriki, quinoa\n• **Dokezo:** Sambaza protini siku nzima kwa mmeng'enyo bora!\n\n*Je, unataka mawazo ya mapishi yenye protini nyingi?*",
+            'am': "🥩 **የፕሮቲን መመሪያ:**\n\n• **የቀን ፍላጎት:** በሰውነት ክብደት ኪሎግራም 0.8-2.2 ግራም\n• **ለስፖርተኞች:** ለጡንቻ ግንባታ እስከ 2.2ግ/ኪግ\n• **ምርጥ ምንጮች:** ቀጭን ስጋ፣ ዓሳ፣ እንቁላል፣ ባቄላ፣ የግሪክ እርጎ፣ ኪኖዋ\n• **ምክር:** ለተሻለ መሳብ ፕሮቲኑን በቀኑ ይከፋፍሉ!\n\n*ፕሮቲን በበዛበት የምግብ አዘገጃጀት ሀሳቦችን ይፈልጋሉ?*"
+        },
+        
+        // WATER responses in multiple languages
+        water: {
+            'en': "💧 **HYDRATION ESSENTIALS:**\n\n• **Basic rule:** 8 glasses (2L) daily minimum\n• **Activity boost:** +500ml per hour of exercise\n• **Climate factor:** More in hot/humid weather\n• **Quality signs:** Pale yellow urine, good energy levels\n• **Flavor tips:** Add lemon, cucumber, or mint!\n\n*Track your intake with our water logging feature!*",
+            'ar': "💧 **أساسيات الترطيب:**\n\n• **القاعدة الأساسية:** 8 أكواب (2 لتر) يومياً كحد أدنى\n• **زيادة النشاط:** +500 مل لكل ساعة تمرين\n• **عامل المناخ:** أكثر في الطقس الحار والرطب\n• **علامات الجودة:** بول أصفر فاتح، مستويات طاقة جيدة\n• **نصائح النكهة:** أضف الليمون أو الخيار أو النعناع!\n\n*تتبع استهلاكك مع ميزة تسجيل الماء لدينا!*",
+            'fr': "💧 **ESSENTIELS D'HYDRATATION:**\n\n• **Règle de base:** 8 verres (2L) minimum par jour\n• **Boost d'activité:** +500ml par heure d'exercice\n• **Facteur climatique:** Plus par temps chaud/humide\n• **Signes de qualité:** Urine jaune pâle, bons niveaux d'énergie\n• **Conseils saveur:** Ajoutez citron, concombre ou menthe!\n\n*Suivez votre consommation avec notre fonction de suivi de l'eau!*",
+            'sw': "💧 **MAMBO MUHIMU YA MAJI:**\n\n• **Kanuni ya msingi:** Vikombe 8 (lita 2) kwa siku\n• **Kuongeza shughuli:** +500ml kwa saa ya mazoezi\n• **Kipengele cha hali ya hewa:** Zaidi wakati wa joto/unyevu\n• **Dalili za ubora:** Mkojo wa manjano mwepesi, viwango vya nishati vizuri\n• **Vidokezo vya ladha:** Ongeza ndimu, tango au nanaa!\n\n*Fuatilia matumizi yako na kipengele chetu cha kurekodi maji!*",
+            'am': "💧 **የውኃ አስፈላጊ ነገሮች:**\n\n• **መሰረታዊ ህግ:** በቀን ቢያንስ 8 ኩባያ (2 ሊትር)\n• **የአካል ብቃት እንቅስቃሴ መጨመሪያ:** በአንድ ሰዓት የአካል ብቃት እንቅስቃሴ +500ml\n• **የየብስ ሁኔታ ምክንያት:** በሙቅ/እርጥብ አየር ውስጥ ብዙ\n• **የጥራት ምልክቶች:** ደብዛዛ ቢጫ ሽንት፣ ጥሩ የኃይል ደረጃ\n• **የጣዕም ምክሮች:** ሎሚ፣ ዳቦ ወይም ዕጣን ያክሉ!\n\n*በእኛ የውሃ ምዝገባ ባህሪ ቅበላዎን ይከታተሉ!*"
+        },
+        
+        // WEIGHT LOSS responses
+        'lose weight': {
+            'en': "🎯 **WEIGHT LOSS STRATEGY:**\n\n• **Create deficit:** Eat less + move more (but safely!)\n• **Meal timing:** Don't skip meals, eat every 3-4 hours\n• **Protein priority:** Keeps you full and preserves muscle\n• **Sleep matters:** 7-9 hours for hormone balance\n• **Be patient:** Healthy loss takes time but lasts!\n\n*Start with our personalized nutrition plan!*",
+            'ar': "🎯 **استراتيجية فقدان الوزن:**\n\n• **إنشاء عجز:** كل أقل + تحرك أكثر (لكن بأمان!)\n• **توقيت الوجبات:** لا تتخط الوجبات، كل كل 3-4 ساعات\n• **أولوية البروتين:** يبقيك ممتلئاً ويحافظ على العضلات\n• **النوم مهم:** 7-9 ساعات لتوازن الهرمونات\n• **كن صبوراً:** الفقدان الصحي يحتاج وقت لكنه يدوم!\n\n*ابدأ بخطة التغذية المخصصة لدينا!*",
+            'fr': "🎯 **STRATÉGIE DE PERTE DE POIDS:**\n\n• **Créer un déficit:** Manger moins + bouger plus (mais en sécurité!)\n• **Timing des repas:** Ne sautez pas de repas, mangez toutes les 3-4 heures\n• **Priorité aux protéines:** Vous garde rassasié et préserve les muscles\n• **Le sommeil compte:** 7-9 heures pour l'équilibre hormonal\n• **Soyez patient:** La perte saine prend du temps mais dure!\n\n*Commencez avec notre plan nutritionnel personnalisé!*"
+        }
+    };
+    
+    return multilingualResponses[topic]?.[language] || multilingualResponses[topic]?.['en'] || null;
+}
+
 function generateLocalResponse(message) {
+    // Detect language first
+    const detectedLanguage = detectLanguage(message);
+    const lowerMessage = message.toLowerCase();
+    
+    // Enhanced keyword matching with multilingual support
+    const keywords = {
+        'protein': ['protein', 'protien', 'protine', 'بروتين', 'protéine', 'proteína', 'protini', 'ፕሮቲን'],
+        'water': ['water', 'hydration', 'drink', 'مياه', 'ماء', 'eau', 'agua', 'maji', 'ውኃ'],
+        'lose weight': ['lose weight', 'weight loss', 'diet', 'slim', 'فقدان الوزن', 'perdre du poids', 'perder peso', 'kupunguza uzito'],
+        'gain weight': ['gain weight', 'build muscle', 'bulk', 'زيادة الوزن', 'prendre du poids', 'ganar peso'],
+        'calories': ['calories', 'calorie', 'energy', 'سعرات', 'calories', 'calorías'],
+        'exercise': ['exercise', 'workout', 'fitness', 'gym', 'تمرين', 'exercice', 'ejercicio', 'mazoezi'],
+        'breakfast': ['breakfast', 'morning meal', 'إفطار', 'petit-déjeuner', 'desayuno', 'chakula cha asubuhi'],
+        'stress': ['stress', 'anxiety', 'mental health', 'ضغط', 'stress', 'estrés', 'msongo wa mawazo'],
+        'sleep': ['sleep', 'rest', 'insomnia', 'نوم', 'sommeil', 'sueño', 'usingizi'],
+        'diabetes': ['diabetes', 'blood sugar', 'glucose', 'سكري', 'diabète', 'diabetes', 'kisukari'],
+        'heart health': ['heart', 'cardiovascular', 'blood pressure', 'قلب', 'cœur', 'corazón', 'moyo']
+    };
+    
+    // Find matching topics
+    const matchedTopics = [];
+    for (const [topic, variations] of Object.entries(keywords)) {
+        for (const variation of variations) {
+            if (lowerMessage.includes(variation.toLowerCase())) {
+                matchedTopics.push({ topic, specificity: variation.length });
+                break;
+            }
+        }
+    }
+    
+    // Get multilingual response if available
+    if (matchedTopics.length > 0) {
+        matchedTopics.sort((a, b) => b.specificity - a.specificity);
+        const bestMatch = matchedTopics[0].topic;
+        
+        const multilingualResponse = getMultilingualResponse(bestMatch, detectedLanguage);
+        if (multilingualResponse) {
+            return multilingualResponse;
+        }
+    }
+    
+    // Fallback to enhanced English responses
     const responses = {
         // Macronutrients
         protein: "🥩 **PROTEIN GUIDANCE:**\n\n• **Daily needs:** 0.8-2.2g per kg body weight\n• **Athletes:** Up to 2.2g/kg for muscle building\n• **Best sources:** Lean meats, fish, eggs, legumes, Greek yogurt, quinoa\n• **Tip:** Spread protein throughout the day for better absorption!\n\n*Would you like specific protein-rich recipe ideas?*",
@@ -1659,8 +1759,622 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
+// ===== ADVANCED FUNCTIONALITY FEATURES =====
+
+// Daily AI Coach System
+function initializeDailyCoach() {
+    const lastCoachingDate = getFromLocalStorage('lastCoachingDate');
+    const today = new Date().toDateString();
+    
+    if (lastCoachingDate !== today) {
+        setTimeout(() => {
+            showDailyCoaching();
+            saveToLocalStorage('lastCoachingDate', today);
+        }, 3000); // Show after 3 seconds
+    }
+    
+    // Setup periodic reminders (every 2 hours)
+    setInterval(showSmartReminder, 2 * 60 * 60 * 1000);
+}
+
+function showDailyCoaching() {
+    if (!AppState.isAuthenticated) return;
+    
+    const userProfile = getFromLocalStorage('userProfile');
+    const nutritionResults = getFromLocalStorage('nutritionResults');
+    const todayStats = getFromLocalStorage('todayStats') || { calories: 0, water: '0L', meals: 0 };
+    
+    const coachingMessages = [
+        {
+            type: 'morning',
+            icon: '🌅',
+            title: 'Good Morning, Champion!',
+            message: `Ready to conquer today? Your target: ${nutritionResults?.calories || 2000} calories, ${nutritionResults?.protein || 150}g protein, and 2L+ water!`,
+            action: 'Start with a protein-rich breakfast!'
+        },
+        {
+            type: 'hydration',
+            icon: '💧',
+            title: 'Hydration Check!',
+            message: `You've had ${todayStats.water} so far. Your body needs consistent hydration for optimal performance.`,
+            action: 'Grab a glass of water right now! 🥤'
+        },
+        {
+            type: 'protein',
+            icon: '🥩',
+            title: 'Protein Power Time!',
+            message: `Aim for ${Math.round((nutritionResults?.protein || 150) / 3)}g protein this meal. Your muscles will thank you!`,
+            action: 'Try: Greek yogurt, eggs, or lean chicken'
+        },
+        {
+            type: 'motivation',
+            icon: '🔥',
+            title: 'You\'re Doing Amazing!',
+            message: `${todayStats.meals} meals logged, ${todayStats.calories} calories tracked. Every healthy choice matters!`,
+            action: 'Keep the momentum going! 💪'
+        }
+    ];
+    
+    const randomCoaching = coachingMessages[Math.floor(Math.random() * coachingMessages.length)];
+    showCoachingToast(randomCoaching);
+}
+
+function showCoachingToast(coaching) {
+    const toast = document.createElement('div');
+    toast.className = 'coaching-toast';
+    toast.innerHTML = `
+        <div class="coaching-content">
+            <div class="coaching-icon">${coaching.icon}</div>
+            <div class="coaching-text">
+                <h4>${coaching.title}</h4>
+                <p>${coaching.message}</p>
+                <small><strong>${coaching.action}</strong></small>
+            </div>
+            <button class="coaching-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+        </div>
+    `;
+    
+    // Add styles
+    toast.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 0;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        z-index: 1001;
+        max-width: 350px;
+        animation: slideInRight 0.5s ease-out;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 10 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.style.animation = 'slideOutRight 0.5s ease-out';
+            setTimeout(() => toast.remove(), 500);
+        }
+    }, 10000);
+}
+
+function showSmartReminder() {
+    if (!AppState.isAuthenticated) return;
+    
+    const currentHour = new Date().getHours();
+    const todayStats = getFromLocalStorage('todayStats') || { calories: 0, water: '0L', meals: 0 };
+    
+    let reminder = null;
+    
+    // Smart reminders based on time and progress
+    if (currentHour >= 7 && currentHour <= 10 && todayStats.meals === 0) {
+        reminder = {
+            icon: '🍳',
+            title: 'Breakfast Time!',
+            message: 'Start your day with energy! Don\'t skip the most important meal.',
+            action: 'Check out our breakfast recipes!'
+        };
+    } else if (currentHour >= 12 && currentHour <= 14 && todayStats.meals <= 1) {
+        reminder = {
+            icon: '🥗',
+            title: 'Lunch Break!',
+            message: 'Time to refuel with a balanced, nutritious meal.',
+            action: 'Try our quick lunch ideas!'
+        };
+    } else if (currentHour >= 18 && currentHour <= 20 && todayStats.meals <= 2) {
+        reminder = {
+            icon: '🍽️',
+            title: 'Dinner Time!',
+            message: 'End your day with a satisfying, healthy dinner.',
+            action: 'Explore our dinner recipes!'
+        };
+    } else if (parseInt(todayStats.water.replace('L', '')) < 1.5) {
+        reminder = {
+            icon: '💧',
+            title: 'Hydration Alert!',
+            message: 'You\'re behind on your water goal. Stay hydrated!',
+            action: 'Drink a glass of water now! 🥤'
+        };
+    }
+    
+    if (reminder) {
+        showCoachingToast(reminder);
+    }
+}
+
+// Advanced Meal Planning System
+function generatePersonalizedMealPlan() {
+    const userProfile = getFromLocalStorage('userProfile');
+    const nutritionResults = getFromLocalStorage('nutritionResults');
+    const goals = getFromLocalStorage('userGoals');
+    
+    if (!userProfile || !nutritionResults) {
+        showAlert('Please complete your nutrition assessment first!', 'warning');
+        switchTab('nutrition');
+        return;
+    }
+    
+    showLoading('Creating your personalized meal plan...');
+    
+    // Calculate meal distribution
+    const dailyCalories = nutritionResults.calories;
+    const dailyProtein = nutritionResults.protein;
+    
+    const mealPlan = {
+        breakfast: {
+            calories: Math.round(dailyCalories * 0.25),
+            protein: Math.round(dailyProtein * 0.3),
+            suggestions: [
+                '🥣 Greek yogurt with berries and granola',
+                '🍳 Scrambled eggs with whole grain toast',
+                '🥞 Protein pancakes with banana',
+                '🥗 Avocado toast with poached egg'
+            ]
+        },
+        lunch: {
+            calories: Math.round(dailyCalories * 0.35),
+            protein: Math.round(dailyProtein * 0.35),
+            suggestions: [
+                '🥗 Quinoa bowl with grilled chicken',
+                '🐟 Salmon salad with mixed greens',
+                '🌮 Turkey and veggie wrap',
+                '🍲 Lentil soup with whole grain bread'
+            ]
+        },
+        dinner: {
+            calories: Math.round(dailyCalories * 0.30),
+            protein: Math.round(dailyProtein * 0.25),
+            suggestions: [
+                '🍗 Grilled chicken with roasted vegetables',
+                '🐟 Baked fish with quinoa and broccoli',
+                '🥩 Lean beef stir-fry with brown rice',
+                '🍝 Whole wheat pasta with turkey meatballs'
+            ]
+        },
+        snacks: {
+            calories: Math.round(dailyCalories * 0.10),
+            protein: Math.round(dailyProtein * 0.10),
+            suggestions: [
+                '🥜 Mixed nuts and fruit',
+                '🧀 Greek yogurt with almonds',
+                '🍎 Apple slices with almond butter',
+                '🥤 Protein smoothie'
+            ]
+        }
+    };
+    
+    hideLoading();
+    displayMealPlan(mealPlan);
+    saveToLocalStorage('personalizedMealPlan', mealPlan);
+}
+
+function displayMealPlan(mealPlan) {
+    const modal = document.createElement('div');
+    modal.className = 'meal-plan-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    `;
+    
+    let html = `
+        <div style="
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        ">
+            <button onclick="this.closest('.meal-plan-modal').remove()" style="
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                background: none;
+                border: none;
+                font-size: 2rem;
+                cursor: pointer;
+            ">&times;</button>
+            
+            <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">
+                🍽️ Your Personalized Meal Plan
+            </h2>
+    `;
+    
+    for (const [mealType, meal] of Object.entries(mealPlan)) {
+        html += `
+            <div style="margin-bottom: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 15px;">
+                <h3 style="color: var(--primary-color); text-transform: capitalize; margin-bottom: 1rem;">
+                    ${mealType} - ${meal.calories} cal, ${meal.protein}g protein
+                </h3>
+                <div style="display: grid; gap: 0.5rem;">
+        `;
+        
+        meal.suggestions.forEach(suggestion => {
+            html += `<div style="padding: 0.5rem; background: white; border-radius: 8px; border-left: 4px solid var(--primary-color);">${suggestion}</div>`;
+        });
+        
+        html += `</div></div>`;
+    }
+    
+    html += `
+            <div style="text-align: center; margin-top: 2rem;">
+                <button onclick="startMealPlanTracking()" style="
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    color: white;
+                    padding: 1rem 2rem;
+                    border: none;
+                    border-radius: 25px;
+                    font-size: 1.1rem;
+                    cursor: pointer;
+                    margin-right: 1rem;
+                ">📊 Start Tracking</button>
+                <button onclick="generatePersonalizedMealPlan()" style="
+                    background: transparent;
+                    color: var(--primary-color);
+                    padding: 1rem 2rem;
+                    border: 2px solid var(--primary-color);
+                    border-radius: 25px;
+                    font-size: 1.1rem;
+                    cursor: pointer;
+                ">🔄 Generate New Plan</button>
+            </div>
+        </div>
+    `;
+    
+    modal.innerHTML = html;
+    document.body.appendChild(modal);
+}
+
+function startMealPlanTracking() {
+    document.querySelector('.meal-plan-modal').remove();
+    showAlert('🎯 Meal plan tracking activated! I\'ll remind you throughout the day.', 'success');
+    saveToLocalStorage('mealPlanActive', true);
+}
+
+// Advanced Food Scanner (Simulated)
+function openFoodScanner() {
+    showAlert('📸 Food Scanner activated! (Simulated feature)', 'info');
+    
+    // Simulate scanning delay
+    showLoading('Analyzing food...');
+    
+    setTimeout(() => {
+        hideLoading();
+        
+        // Simulate scanned food results
+        const scannedFoods = [
+            { name: 'Banana', calories: 105, protein: 1.3, carbs: 27, fat: 0.3 },
+            { name: 'Apple', calories: 95, protein: 0.5, carbs: 25, fat: 0.3 },
+            { name: 'Chicken Breast', calories: 165, protein: 31, carbs: 0, fat: 3.6 },
+            { name: 'Salmon Fillet', calories: 208, protein: 22, carbs: 0, fat: 12 }
+        ];
+        
+        const randomFood = scannedFoods[Math.floor(Math.random() * scannedFoods.length)];
+        
+        displayNutritionLookup({
+            calories: randomFood.calories,
+            protein: randomFood.protein,
+            carbs: randomFood.carbs,
+            fat: randomFood.fat,
+            fiber: 2,
+            serving_qty: 100,
+            serving_unit: 'grams',
+            source: 'AI Food Scanner'
+        }, randomFood.name);
+        
+        showAlert(`📸 Scanned: ${randomFood.name}! Nutrition info displayed.`, 'success');
+        
+        // Switch to meals tab to show results
+        switchTab('meals');
+        
+        // Scroll to results
+        setTimeout(() => {
+            document.getElementById('nutritionLookupResult').scrollIntoView({ behavior: 'smooth' });
+        }, 500);
+        
+    }, 2000);
+}
+
+// Smart Grocery List Generator
+function generateSmartGroceryList() {
+    const mealPlan = getFromLocalStorage('personalizedMealPlan');
+    const goals = getFromLocalStorage('userGoals');
+    const dietaryRestrictions = goals?.dietaryRestrictions || [];
+    
+    if (!mealPlan) {
+        generatePersonalizedMealPlan();
+        return;
+    }
+    
+    const groceryItems = {
+        proteins: [
+            'Chicken breast (1kg)',
+            'Salmon fillet (500g)',
+            'Greek yogurt (750g)',
+            'Eggs (12 pack)',
+            'Lean ground turkey (500g)'
+        ],
+        vegetables: [
+            'Mixed leafy greens (200g)',
+            'Broccoli (300g)',
+            'Bell peppers (3 pieces)',
+            'Tomatoes (500g)',
+            'Carrots (500g)'
+        ],
+        fruits: [
+            'Bananas (6 pieces)',
+            'Apples (6 pieces)',
+            'Mixed berries (250g)',
+            'Avocados (3 pieces)',
+            'Oranges (4 pieces)'
+        ],
+        grains: [
+            'Brown rice (1kg)',
+            'Quinoa (500g)',
+            'Whole grain bread (1 loaf)',
+            'Oats (500g)',
+            'Whole wheat pasta (500g)'
+        ],
+        dairy: [
+            'Milk (1L)',
+            'Low-fat cheese (200g)',
+            'Plain Greek yogurt (500g)'
+        ],
+        pantry: [
+            'Olive oil (250ml)',
+            'Mixed nuts (200g)',
+            'Almond butter (250g)',
+            'Honey (250g)',
+            'Spices & herbs'
+        ]
+    };
+    
+    // Filter based on dietary restrictions
+    if (dietaryRestrictions.includes('vegan')) {
+        delete groceryItems.dairy;
+        groceryItems.proteins = [
+            'Tofu (400g)',
+            'Lentils (500g)',
+            'Chickpeas (2 cans)',
+            'Quinoa (500g)',
+            'Nuts & seeds mix (300g)'
+        ];
+    }
+    
+    if (dietaryRestrictions.includes('gluten-free')) {
+        groceryItems.grains = [
+            'Brown rice (1kg)',
+            'Quinoa (500g)',
+            'Gluten-free bread (1 loaf)',
+            'Gluten-free oats (500g)'
+        ];
+    }
+    
+    displayGroceryList({
+        categories: groceryItems,
+        estimated_cost: '$55-75 USD'
+    }, [
+        '🌱 Choose organic when possible',
+        '🌍 Buy local and seasonal produce',
+        '♻️ Bring reusable bags',
+        '📋 Check expiry dates',
+        '💰 Compare prices for best deals'
+    ]);
+}
+
+// Achievement & Badge System
+function checkAchievements() {
+    const achievements = getFromLocalStorage('achievements') || [];
+    const todayStats = getFromLocalStorage('todayStats') || {};
+    const streakDays = getFromLocalStorage('streakDays') || 0;
+    
+    const newAchievements = [];
+    
+    // Check for various achievements
+    if (todayStats.meals >= 3 && !achievements.includes('daily_meals')) {
+        newAchievements.push({
+            id: 'daily_meals',
+            title: 'Meal Master',
+            description: 'Logged 3 meals in one day',
+            badge: '🍽️',
+            points: 50
+        });
+    }
+    
+    if (parseInt(todayStats.water?.replace('L', '') || '0') >= 2 && !achievements.includes('hydration_hero')) {
+        newAchievements.push({
+            id: 'hydration_hero',
+            title: 'Hydration Hero',
+            description: 'Reached daily water goal',
+            badge: '💧',
+            points: 30
+        });
+    }
+    
+    if (streakDays >= 7 && !achievements.includes('weekly_warrior')) {
+        newAchievements.push({
+            id: 'weekly_warrior',
+            title: 'Weekly Warrior',
+            description: '7-day nutrition tracking streak',
+            badge: '🔥',
+            points: 100
+        });
+    }
+    
+    // Award new achievements
+    if (newAchievements.length > 0) {
+        newAchievements.forEach(achievement => {
+            achievements.push(achievement.id);
+            showAchievementToast(achievement);
+        });
+        
+        saveToLocalStorage('achievements', achievements);
+        
+        // Update points
+        const currentPoints = getFromLocalStorage('totalPoints') || 0;
+        const newPoints = newAchievements.reduce((sum, ach) => sum + ach.points, 0);
+        saveToLocalStorage('totalPoints', currentPoints + newPoints);
+    }
+}
+
+function showAchievementToast(achievement) {
+    const toast = document.createElement('div');
+    toast.className = 'achievement-toast';
+    toast.innerHTML = `
+        <div class="achievement-content">
+            <div class="achievement-badge">${achievement.badge}</div>
+            <div class="achievement-text">
+                <h4>🎉 Achievement Unlocked!</h4>
+                <h5>${achievement.title}</h5>
+                <p>${achievement.description}</p>
+                <small>+${achievement.points} points earned!</small>
+            </div>
+        </div>
+    `;
+    
+    toast.style.cssText = `
+        position: fixed;
+        top: 120px;
+        right: 20px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+        z-index: 1001;
+        max-width: 320px;
+        animation: bounceIn 0.6s ease-out;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 8 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.style.animation = 'fadeOut 0.5s ease-out';
+            setTimeout(() => toast.remove(), 500);
+        }
+    }, 8000);
+}
+
+// Initialize enhanced features
+function initializeAdvancedFeatures() {
+    initializeDailyCoach();
+    
+    // Check achievements periodically
+    setInterval(checkAchievements, 30000); // Every 30 seconds
+    
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.05) rotate(2deg); }
+            70% { transform: scale(0.9) rotate(-1deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        .coaching-content, .achievement-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+        }
+        
+        .coaching-icon, .achievement-badge {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        
+        .coaching-text h4, .achievement-text h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .coaching-text p, .achievement-text p {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .coaching-close {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Add to initialization
+function initializeApp() {
+    setupTabNavigation();
+    setupNutritionForm();
+    setupAuthentication();
+    initializeDashboard();
+    loadUserProfile();
+    setupChat();
+    setupAdvancedFeatures();
+    checkAuthStatus();
+    initializeAdvancedFeatures(); // Add this line
+    
+    console.log('🍎 SmartEats App Initialized - Fighting Hunger & Promoting Health!');
+}
+
 // Welcome message
 console.log('%c🍎 SmartEats - Hackathon 2025', 'color: #16a085; font-size: 20px; font-weight: bold;');
 console.log('%c🌍 Fighting Hunger (SDG 2) & Promoting Health (SDG 3)', 'color: #27ae60; font-size: 14px;');
 console.log('%c🛠️ Tech Stack: HTML5 + CSS3 + JS + Python Flask + MySQL/MongoDB/Firebase', 'color: #3498db; font-size: 12px;');
 console.log('%c✨ Advanced Features: AI, Community, Wellness, Sustainability + Authentication', 'color: #9b59b6; font-size: 12px;');
+console.log('%c🤖 NEW: Advanced AI Coach, Smart Notifications, Meal Planning & Achievements!', 'color: #e74c3c; font-size: 14px; font-weight: bold;');
