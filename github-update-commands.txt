@@ -1,0 +1,19 @@
+# Commands to update your GitHub repo with production files
+
+# 1. Navigate to your SmartEats directory
+cd C:\Users\think\Desktop\SmartEats
+
+# 2. Copy the working files we created
+cp backend_production.py app.py
+cp simple-requirements.txt requirements.txt  
+echo "web: gunicorn app:app" > Procfile
+
+# 3. Add and commit to git
+git add .
+git commit -m "Add production backend for deployment"
+git push origin main
+
+# 4. In Render dashboard, trigger "Manual Deploy"
+
+# Alternative - if you don't want to use git:
+# Just update Render settings to use: gunicorn app:app
