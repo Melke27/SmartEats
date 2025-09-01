@@ -6,11 +6,20 @@
  * Advanced Features: AI, Community, Wellness, Sustainability
  */
 
-// API Configuration - Production Backend
+// API Configuration - Force Production Backend (Cache Busted)
+// Production API URL - NEVER use localhost in production
 const API_BASE_URL = 'https://smarteats-1.onrender.com/api';
 
-// Fallback for local development
-// const API_BASE_URL = 'http://localhost:5000/api';
+// Force production environment check
+const IS_PRODUCTION = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+// Cache buster to force Netlify update - MAJOR VERSION UPDATE
+const CACHE_VERSION = 'v2.2-african-foods-production-' + Date.now();
+
+// Log current environment and API configuration
+console.log('🌍 SmartEats Environment:', IS_PRODUCTION ? 'PRODUCTION' : 'DEVELOPMENT');
+console.log('📡 API Base URL:', API_BASE_URL);
+console.log('🔄 Cache Version:', CACHE_VERSION);
 
 // Global State Management
 const AppState = {
@@ -593,6 +602,12 @@ function getMultilingualResponse(topic, language) {
 }
 
 function generateLocalResponse(message) {
+    // First check for African food responses
+    const africanResponse = generateLocalResponseWithAfricanFoods(message);
+    if (africanResponse) {
+        return africanResponse;
+    }
+    
     // Detect language first
     const detectedLanguage = detectLanguage(message);
     const lowerMessage = message.toLowerCase();
@@ -1167,7 +1182,7 @@ function displayGroceryList(groceryData, tips) {
     listDiv.style.display = 'block';
 }
 
-// Enhanced Food Nutrition Lookup
+// Enhanced Food Nutrition Lookup with African Foods Integration
 async function lookupFoodNutrition() {
     const food = document.getElementById('foodLookup').value.trim();
     
@@ -1177,6 +1192,14 @@ async function lookupFoodNutrition() {
     }
     
     showLoading('Looking up nutrition information...');
+    
+    // First check if it's a traditional African food
+    const africanFood = findAfricanFood(food);
+    if (africanFood) {
+        displayAfricanFoodInfo(africanFood, food);
+        hideLoading();
+        return;
+    }
     
     try {
         const response = await fetch(`${API_BASE_URL}/nutrition/lookup`, {
@@ -1557,7 +1580,30 @@ async function handleSignup(event) {
         
     } catch (error) {
         console.error('Signup error:', error);
-        showAlert('Network error. Please check your connection and try again.', 'error');
+        console.log('📡 API URL attempted:', API_BASE_URL);
+        
+        // Enhanced error handling for production
+        if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+            showAlert('🌐 Backend service is currently unavailable. You can still use the app offline! All features except cloud sync will work perfectly.', 'warning');
+            
+            // Create offline user account
+            const offlineUser = {
+                id: 'offline_' + Date.now(),
+                name: name,
+                email: email,
+                is_premium: false,
+                joinDate: new Date().toISOString(),
+                isOffline: true
+            };
+            
+            loginUser(offlineUser);
+            closeSignupModal();
+            showWelcomeModal();
+            showAlert('🎉 Welcome to SmartEats! Account created locally. All features available offline!', 'success');
+            document.getElementById('signupForm').reset();
+        } else {
+            showAlert('Network error. Please check your connection and try again, or continue offline.', 'error');
+        }
     }
     
     hideLoading();
@@ -2471,9 +2517,530 @@ function initializeApp() {
     console.log('🍎 SmartEats App Initialized - Fighting Hunger & Promoting Health!');
 }
 
+// ===== AFRICAN FOODS DATABASE INTEGRATION =====
+
+// Find African food in database
+function findAfricanFood(searchTerm) {
+    const search = searchTerm.toLowerCase();
+    
+    // Check if African foods database is loaded
+    if (typeof window.africanFoodDatabase === 'undefined') {
+        console.log('African foods database not loaded');
+        return null;
+    }
+    
+    const { ethiopian, african, beverages, spices } = window.africanFoodDatabase;
+    
+    // Search in all categories
+    const allFoods = { ...ethiopian, ...african, ...beverages, ...spices };
+    
+    for (const [key, food] of Object.entries(allFoods)) {
+        // Check main name
+        if (food.name.toLowerCase().includes(search)) {
+            return { key, ...food };
+        }
+        
+        // Check if search matches key
+        if (key.includes(search) || search.includes(key)) {
+            return { key, ...food };
+        }
+        
+        // Check alternative names/keywords
+        const keywords = [
+            'injera', 'enjera', 'ኢንጀራ',
+            'doro', 'wat', 'ዶሮ', 'ወጥ',
+            'shiro', 'ሽሮ',
+            'kitfo', 'ክትፎ',
+            'tibs', 'ጥብስ',
+            'jollof',
+            'fufu',
+            'ugali', 'posho',
+            'bobotie',
+            'couscous',
+            'sukuma', 'wiki',
+            'tej', 'ጠጅ',
+            'bissap', 'hibiscus',
+            'berbere', 'በርበሬ',
+            'harissa'
+        ];
+        
+        for (const keyword of keywords) {
+            if (search.includes(keyword) || keyword.includes(search)) {
+                return { key, ...food };
+            }
+        }
+    }
+    
+    return null;
+}
+
+// Display African food information
+function displayAfricanFoodInfo(food, searchTerm) {
+    const resultDiv = document.getElementById('nutritionLookupResult');
+    if (!resultDiv) return;
+    
+    // Generate comprehensive display
+    let html = `
+        <div class="african-food-card" style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+        ">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <img src="${food.image}" alt="${food.name}" style="
+                    width: 200px;
+                    height: 150px;
+                    border-radius: 15px;
+                    margin-bottom: 1rem;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                ">
+                <h3 style="margin: 0; font-size: 1.8rem;">${food.name}</h3>
+                <p style="opacity: 0.9; margin: 0.5rem 0;">${food.description}</p>
+                <span style="
+                    background: rgba(255,255,255,0.2);
+                    padding: 0.3rem 1rem;
+                    border-radius: 15px;
+                    font-size: 0.9rem;
+                ">${food.region || 'Traditional African'}</span>
+            </div>
+        </div>
+        
+        <div class="nutrition-info-comprehensive" style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        ">
+    `;
+    
+    // Nutrition Facts Card
+    if (food.calories) {
+        html += `
+            <div class="nutrition-card" style="
+                background: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 15px;
+                border-left: 5px solid #16a085;
+            ">
+                <h4 style="color: #16a085; margin: 0 0 1rem 0;">🥗 Nutrition Facts</h4>
+                <div style="display: grid; gap: 0.8rem;">
+                    <div class="nutrition-item"><strong>Calories:</strong> ${food.calories}</div>
+                    ${food.protein ? `<div class="nutrition-item"><strong>Protein:</strong> ${food.protein}g</div>` : ''}
+                    ${food.carbs ? `<div class="nutrition-item"><strong>Carbs:</strong> ${food.carbs}g</div>` : ''}
+                    ${food.fat ? `<div class="nutrition-item"><strong>Fat:</strong> ${food.fat}g</div>` : ''}
+                    ${food.fiber ? `<div class="nutrition-item"><strong>Fiber:</strong> ${food.fiber}g</div>` : ''}
+                </div>
+                ${food.servingSize ? `<p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">Per ${food.servingSize}</p>` : ''}
+            </div>
+        `;
+    }
+    
+    // Health Benefits Card
+    if (food.benefits && food.benefits.length > 0) {
+        html += `
+            <div class="benefits-card" style="
+                background: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 15px;
+                border-left: 5px solid #e74c3c;
+            ">
+                <h4 style="color: #e74c3c; margin: 0 0 1rem 0;">💪 Health Benefits</h4>
+                <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+        `;
+        food.benefits.forEach(benefit => {
+            html += `<li>${benefit}</li>`;
+        });
+        html += `</ul></div>`;
+    }
+    
+    // Vitamins & Minerals Card
+    if (food.vitamins && food.vitamins.length > 0) {
+        html += `
+            <div class="vitamins-card" style="
+                background: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 15px;
+                border-left: 5px solid #f39c12;
+            ">
+                <h4 style="color: #f39c12; margin: 0 0 1rem 0;">🌈 Key Nutrients</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        `;
+        food.vitamins.forEach(vitamin => {
+            html += `<span style="
+                background: rgba(243, 156, 18, 0.1);
+                color: #f39c12;
+                padding: 0.3rem 0.8rem;
+                border-radius: 12px;
+                font-size: 0.9rem;
+                border: 1px solid rgba(243, 156, 18, 0.2);
+            ">${vitamin}</span>`;
+        });
+        html += `</div></div>`;
+    }
+    
+    // Cultural Information Card
+    if (food.culturalSignificance) {
+        html += `
+            <div class="cultural-card" style="
+                background: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 15px;
+                border-left: 5px solid #9b59b6;
+            ">
+                <h4 style="color: #9b59b6; margin: 0 0 1rem 0;">🌍 Cultural Heritage</h4>
+                <p style="margin: 0; line-height: 1.6;">${food.culturalSignificance}</p>
+                ${food.preparationTime ? `<p style="margin-top: 1rem; font-weight: bold;">⏱️ Preparation Time: ${food.preparationTime}</p>` : ''}
+                ${food.spiceLevel ? `<p style="margin-top: 0.5rem;"><strong>Spice Level:</strong> ${food.spiceLevel}</p>` : ''}
+            </div>
+        `;
+    }
+    
+    // Ingredients Card (for spices)
+    if (food.ingredients && food.ingredients.length > 0) {
+        html += `
+            <div class="ingredients-card" style="
+                background: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 15px;
+                border-left: 5px solid #27ae60;
+                grid-column: 1 / -1;
+            ">
+                <h4 style="color: #27ae60; margin: 0 0 1rem 0;">🌿 Key Ingredients</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        `;
+        food.ingredients.forEach(ingredient => {
+            html += `<span style="
+                background: rgba(39, 174, 96, 0.1);
+                color: #27ae60;
+                padding: 0.4rem 1rem;
+                border-radius: 15px;
+                font-size: 0.9rem;
+                border: 1px solid rgba(39, 174, 96, 0.2);
+            ">${ingredient}</span>`;
+        });
+        html += `</div></div>`;
+    }
+    
+    html += `</div>`; // Close nutrition-info-comprehensive
+    
+    // Special notes
+    if (food.dietaryNote || food.note || food.alcoholContent) {
+        html += `<div class="dietary-notes" style="
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        ">`;
+        
+        if (food.dietaryNote) {
+            html += `<p style="margin: 0; color: #856404;"><strong>⚠️ Note:</strong> ${food.dietaryNote}</p>`;
+        }
+        
+        if (food.alcoholContent) {
+            html += `<p style="margin: 0; color: #856404;"><strong>🍷 Alcohol Content:</strong> ${food.alcoholContent}</p>`;
+        }
+        
+        if (food.note) {
+            html += `<p style="margin: 0; color: #856404;"><strong>ℹ️ Important:</strong> ${food.note}</p>`;
+        }
+        
+        html += `</div>`;
+    }
+    
+    // AI Assistant Response
+    if (typeof window.africanFoodResponses !== 'undefined' && window.africanFoodResponses[food.key]) {
+        html += `
+            <div class="ai-response" style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 1.5rem;
+                border-radius: 15px;
+                margin: 1.5rem 0;
+            ">
+                <h4 style="margin: 0 0 1rem 0;">🤖 SmartEats AI Insights</h4>
+                <div style="white-space: pre-line; line-height: 1.6;">${window.africanFoodResponses[food.key]}</div>
+            </div>
+        `;
+    }
+    
+    // Action Buttons
+    html += `
+        <div class="action-buttons" style="
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        ">
+            <button onclick="logAfricanMeal('${food.key}', '${food.name}', ${food.calories || 250})" style="
+                background: #16a085;
+                color: white;
+                padding: 0.8rem 1.5rem;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: bold;
+            ">🍽️ Log This Meal</button>
+            
+            <button onclick="shareAfricanFood('${food.name}', '${food.region}')" style="
+                background: #3498db;
+                color: white;
+                padding: 0.8rem 1.5rem;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: bold;
+            ">📤 Share Discovery</button>
+            
+            <button onclick="exploreMoreAfricanFoods('${food.region}')" style="
+                background: #e74c3c;
+                color: white;
+                padding: 0.8rem 1.5rem;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: bold;
+            ">🌍 Explore More</button>
+        </div>
+    `;
+    
+    // Source attribution
+    html += `
+        <div class="source-info" style="
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        ">
+            <p style="margin: 0;">🌍 <strong>Source:</strong> SmartEats Traditional African Foods Database</p>
+            <p style="margin: 0.5rem 0 0 0;">Supporting cultural food diversity for SDG 2 (Zero Hunger) & SDG 3 (Good Health)</p>
+        </div>
+    `;
+    
+    resultDiv.innerHTML = html;
+    resultDiv.style.display = 'block';
+    
+    // Show success message
+    showAlert(`🌍 Found traditional ${food.region || 'African'} food: ${food.name}!`, 'success');
+}
+
+// Log African meal
+function logAfricanMeal(foodKey, foodName, calories) {
+    if (!AppState.isAuthenticated) {
+        showAlert('Please login to log meals!', 'info');
+        openLoginModal();
+        return;
+    }
+    
+    // Update dashboard stats
+    const currentStats = getFromLocalStorage('todayStats') || {
+        calories: 1250, water: '1.5L', meals: 3
+    };
+    currentStats.calories += calories;
+    currentStats.meals += 1;
+    saveToLocalStorage('todayStats', currentStats);
+    updateDashboardStats();
+    
+    // Track cultural food exploration
+    const culturalFoods = getFromLocalStorage('culturalFoodsLogged') || [];
+    if (!culturalFoods.includes(foodKey)) {
+        culturalFoods.push(foodKey);
+        saveToLocalStorage('culturalFoodsLogged', culturalFoods);
+        
+        // Achievement for cultural exploration
+        if (culturalFoods.length >= 5) {
+            showAchievementToast({
+                id: 'cultural_explorer',
+                title: 'Cultural Explorer',
+                description: 'Logged 5 different traditional African foods',
+                badge: '🌍',
+                points: 100
+            });
+        }
+    }
+    
+    showAlert(`🍽️ Logged ${foodName} (${calories} calories) - Celebrating African food culture! 🌍`, 'success');
+}
+
+// Share African food discovery
+function shareAfricanFood(foodName, region) {
+    const message = `🌍 Just discovered ${foodName} from ${region} on SmartEats! Learning about traditional African foods and their amazing health benefits. #SmartEats #AfricanFood #CulturalNutrition #SDG2 #SDG3`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'African Food Discovery - SmartEats',
+            text: message,
+            url: window.location.href
+        });
+    } else {
+        // Fallback - copy to clipboard
+        navigator.clipboard.writeText(message).then(() => {
+            showAlert('🌍 Food discovery copied to clipboard! Share your cultural food journey!', 'success');
+        }).catch(() => {
+            showAlert('🌍 Share this amazing African food discovery with friends!', 'info');
+        });
+    }
+}
+
+// Explore more African foods by region
+function exploreMoreAfricanFoods(region) {
+    const suggestions = {
+        'Ethiopia': ['Try injera with doro wat', 'Explore shiro for plant-based nutrition', 'Discover kitfo - Ethiopian steak tartare'],
+        'West Africa': ['Discover jollof rice variations', 'Try fufu with different soups', 'Explore plantain-based dishes'],
+        'East Africa': ['Try ugali with sukuma wiki', 'Explore berbere spice blends', 'Discover sorghum dishes'],
+        'North Africa': ['Explore couscous variations', 'Try harissa spice paste', 'Discover tagine cooking'],
+        'South Africa': ['Try bobotie', 'Explore biltong', 'Discover rooibos tea'],
+        'Central Africa': ['Explore cassava dishes', 'Try groundnut stews', 'Discover palm oil cuisine']
+    };
+    
+    const regionSuggestions = suggestions[region] || [
+        'Explore injera and doro wat from Ethiopia',
+        'Try jollof rice from West Africa',
+        'Discover couscous from North Africa',
+        'Explore ugali from East Africa'
+    ];
+    
+    let html = `
+        <div style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+        ">
+            <h3 style="margin: 0 0 1rem 0;">🌍 Explore More from ${region}</h3>
+            <div style="display: grid; gap: 0.8rem; margin: 1.5rem 0;">
+    `;
+    
+    regionSuggestions.forEach(suggestion => {
+        html += `<div style="
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid rgba(255,255,255,0.3);
+        ">${suggestion}</div>`;
+    });
+    
+    html += `
+            </div>
+            <p style="opacity: 0.9; margin: 1rem 0;">🎯 Keep exploring traditional foods to earn the "Cultural Ambassador" badge!</p>
+        </div>
+    `;
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7); display: flex; align-items: center;
+        justify-content: center; z-index: 1000;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 0; border-radius: 20px; max-width: 600px; position: relative; margin: 2rem;">
+            <button onclick="this.closest('div').remove()" style="
+                position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.1);
+                border: none; font-size: 1.5rem; cursor: pointer; border-radius: 50%;
+                width: 40px; height: 40px; z-index: 1001;
+            ">&times;</button>
+            ${html}
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Auto remove after 10 seconds
+    setTimeout(() => {
+        if (modal.parentNode) modal.remove();
+    }, 10000);
+}
+
+// Enhanced local response generation with African food integration
+function generateLocalResponseWithAfricanFoods(message) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Check for African food mentions - Enhanced with more foods
+    const africanFoodKeywords = {
+        // Ethiopian Foods
+        'injera': "🍞 **INJERA - ETHIOPIAN SUPERFOOD:**\n\n• **Ancient Grain**: Made from teff, one of the world's oldest grains\n• **Probiotics**: Fermentation creates beneficial bacteria for gut health\n• **Gluten-Free**: Perfect for celiac or gluten sensitivity\n• **Complete Nutrition**: High iron, calcium, protein, and fiber (320 cal, 12g protein per serving)\n• **Cultural Heritage**: Sacred bread that unites Ethiopian families\n\n*Try making injera at home - it takes 3-4 days to ferment properly!*",
+        
+        'enjera': "🍞 **INJERA - ETHIOPIAN SUPERFOOD:**\n\n• **Ancient Grain**: Made from teff, one of the world's oldest grains\n• **Probiotics**: Fermentation creates beneficial bacteria for gut health\n• **Gluten-Free**: Perfect for celiac or gluten sensitivity\n• **Complete Nutrition**: High iron, calcium, protein, and fiber (320 cal, 12g protein per serving)\n• **Cultural Heritage**: Sacred bread that unites Ethiopian families\n\n*Try making injera at home - it takes 3-4 days to ferment properly!*",
+        
+        'doro wat': "🍗 **DORO WAT - ETHIOPIA'S NATIONAL DISH:**\n\n• **Protein Power**: 35g high-quality protein per serving (650 calories)\n• **Berbere Benefits**: Anti-inflammatory spices boost immunity\n• **B12 Rich**: Essential vitamin for nerve function\n• **Iron Source**: Supports healthy blood formation\n• **Cultural Pride**: Served at holidays and celebrations\n\n*Best enjoyed with injera and eaten with hands in Ethiopian tradition!*",
+        
+        'shiro': "🥜 **SHIRO - PLANT-BASED PROTEIN:**\n\n• **Fasting Food**: Perfect for Ethiopian Orthodox fasting periods\n• **Complete Protein**: 18.5g plant-based protein per cup (280 calories)\n• **High Fiber**: 12.4g supports digestive health\n• **Folate Rich**: Essential for pregnant women\n• **Budget Friendly**: Nutritious and affordable meal\n\n*Mix with berbere spice for authentic Ethiopian flavor!*",
+        
+        'kitfo': "🥩 **KITFO - ETHIOPIAN DELICACY:**\n\n• **High Protein**: 28g premium protein (420 calories per serving)\n• **Iron Rich**: Supports blood health and energy levels\n• **B-Vitamins**: Essential for metabolism and brain function\n• **Cultural Tradition**: Special occasion dish requiring quality meat\n• **Berbere Spice**: Anti-inflammatory and digestive benefits\n\n*Always ensure highest quality meat from trusted sources!*",
+        
+        'tibs': "🔥 **TIBS - ETHIOPIAN STIR-FRY:**\n\n• **Lean Protein**: 25-30g high-quality protein (380-450 calories)\n• **Quick Cooking**: Retains maximum nutrients\n• **Vegetable Rich**: Bell peppers, onions add vitamins\n• **Healthy Fats**: Cooked in minimal oil\n• **Cultural Favorite**: Popular everyday Ethiopian meal\n\n*Perfect balance of protein and vegetables for a healthy meal!*",
+        
+        // West African Foods
+        'jollof rice': "🍚 **JOLLOF RICE - WEST AFRICAN UNITY:**\n\n• **Cultural Bridge**: Unites Nigeria, Ghana, and Senegal\n• **Balanced Meal**: Perfect carbs, protein, and vegetables (380 calories)\n• **Lycopene Power**: Tomatoes provide antioxidant protection\n• **Energy Source**: Complex carbs for sustained energy\n• **Celebration Food**: Center of West African gatherings\n\n*Each country has their unique jollof recipe - all delicious!*",
+        
+        'fufu': "🥔 **FUFU - AFRICAN ENERGY SOURCE:**\n\n• **Sustained Energy**: Complex carbs provide lasting fuel (340 calories)\n• **Gluten-Free**: Made from cassava, yam, or plantain\n• **Resistant Starch**: Feeds beneficial gut bacteria\n• **Community Food**: Eaten from shared bowl with family\n• **Versatile**: Pairs with any soup or stew\n\n*Traditionally eaten with hands - it's part of the cultural experience!*",
+        
+        // East African Foods
+        'ugali': "🌽 **UGALI - EAST AFRICAN STAPLE:**\n\n• **Energy Source**: 220 calories of sustained carbohydrate energy\n• **Gluten-Free**: Made from maize/corn flour\n• **Filling**: High satiety index keeps you full longer\n• **Cultural Unity**: Staple across Kenya, Tanzania, Uganda\n• **Budget Friendly**: Affordable nutrition for families\n\n*Perfect with sukuma wiki (collard greens) for complete nutrition!*",
+        
+        'sukuma wiki': "🥬 **SUKUMA WIKI - NUTRITIONAL POWERHOUSE:**\n\n• **Vitamin K**: Essential for bone health and blood clotting\n• **Iron Rich**: Prevents anemia and boosts energy (45 calories)\n• **Calcium Source**: Supports strong bones and teeth\n• **Low Calorie**: High nutrition density, perfect for weight management\n• **Cultural Wisdom**: \"Sukuma wiki\" means \"stretch the week\"\n\n*Sauté with onions and tomatoes for maximum flavor and nutrition!*",
+        
+        // North African Foods
+        'couscous': "🥣 **COUSCOUS - NORTH AFRICAN COMFORT:**\n\n• **Quick Energy**: Fast-digesting carbs for immediate fuel (176 calories)\n• **B Vitamins**: Supports energy metabolism\n• **Versatile Grain**: Pairs with vegetables, meats, or fruits\n• **Cultural Heritage**: Centuries-old Berber tradition\n• **Light & Fluffy**: Easy on the digestive system\n\n*Steam properly for fluffy texture - never boil couscous!*",
+        
+        // South African Foods
+        'bobotie': "🍖 **BOBOTIE - SOUTH AFRICAN COMFORT:**\n\n• **Protein Rich**: 22g protein from minced meat (320 calories)\n• **Unique Spices**: Curry and dried fruit blend\n• **Cultural Fusion**: Cape Malay and Dutch influences\n• **Complete Meal**: Meat, vegetables, and grains combined\n• **National Dish**: Symbol of South African unity\n\n*The sweet-savory balance makes it uniquely South African!*",
+        
+        // Traditional Beverages
+        'tej': "🍯 **TEJ - ETHIOPIAN HONEY WINE:**\n\n• **Probiotic Benefits**: Fermented honey supports gut health\n• **Antioxidants**: Honey provides natural antioxidants\n• **Cultural Ceremony**: Sacred drink for special occasions\n• **Alcohol Content**: 7-11% - enjoy responsibly\n• **Ancient Recipe**: Thousands of years of tradition\n\n*⚠️ Contains alcohol - not suitable for children or pregnant women*",
+        
+        'bissap': "🌺 **BISSAP - HIBISCUS SUPERFOOD:**\n\n• **Vitamin C**: Higher than orange juice (15 calories)\n• **Blood Pressure**: Natural compounds help reduce hypertension\n• **Antioxidants**: Deep red color indicates high anthocyanins\n• **Refreshing**: Perfect for hot climates, naturally caffeine-free\n• **Weight Management**: May boost metabolism naturally\n\n*Enjoy hot or cold - both ways are traditionally prepared!*",
+        
+        'rooibos': "🍃 **ROOIBOS - SOUTH AFRICAN WELLNESS:**\n\n• **Caffeine-Free**: Perfect evening drink (2 calories)\n• **Antioxidants**: Unique aspalathin compound\n• **Mineral Rich**: Natural source of calcium, iron, manganese\n• **Hypoallergenic**: Safe for sensitive individuals\n• **Cultural Pride**: Indigenous to South African Cederberg\n\n*Red bush tea that's naturally sweet - no sugar needed!*",
+        
+        // Spice Blends
+        'berbere': "🌶️ **BERBERE - ETHIOPIAN SPICE MEDICINE:**\n\n• **Anti-Inflammatory**: Turmeric and ginger compounds\n• **Metabolism Boost**: Capsaicin from chili peppers\n• **Antioxidant Rich**: Multiple spices provide diverse compounds\n• **Digestive Aid**: Cardamom and cinnamon support digestion\n• **Cultural Soul**: The heart of Ethiopian cuisine\n\n*Mix into stews, meats, or vegetables for authentic Ethiopian flavor!*",
+        
+        'harissa': "🔥 **HARISSA - NORTH AFRICAN FIRE:**\n\n• **Capsaicin Power**: Boosts metabolism and pain relief\n• **Vitamin C**: Red peppers provide immune support\n• **Heart Health**: Garlic supports cardiovascular function\n• **Preservative**: Natural antimicrobial properties\n• **Cultural Heritage**: Tunisian origin, now across North Africa\n\n*Start with small amounts - builds heat tolerance over time!*",
+        
+        // General African Food Wisdom
+        'african food': "🌍 **DISCOVER AFRICAN FOOD WISDOM:**\n\n• **Ancient Grains**: Teff, sorghum, millet - nutrient powerhouses\n• **Plant Diversity**: Unique vegetables and legumes\n• **Spice Medicine**: Anti-inflammatory berbere, harissa\n• **Fermented Foods**: Natural probiotics in injera, tej\n• **Cultural Heritage**: Food as medicine and community\n• **Sustainable**: Traditional methods support environment\n\n*Use our food lookup to explore traditional African foods database!*",
+        
+        'traditional african': "🏺 **TRADITIONAL AFRICAN NUTRITION:**\n\n• **Whole Foods**: Minimal processing, maximum nutrition\n• **Plant Forward**: Vegetables, grains, legumes as foundations\n• **Spice Pharmacy**: Each spice blend has health benefits\n• **Community Eating**: Shared meals strengthen social bonds\n• **Seasonal Wisdom**: Eating with natural rhythms\n• **Food as Medicine**: Traditional knowledge of healing foods\n\n*Our African foods database celebrates this nutritional wisdom!*",
+        
+        'ethiopian food': "🇪🇹 **ETHIOPIAN FOOD CULTURE:**\n\n• **Coffee Origin**: Ethiopia is the birthplace of coffee\n• **Injera Base**: Fermented teff bread with every meal\n• **Spice Complexity**: Berbere and mitmita spice blends\n• **Fasting Foods**: Rich vegetarian tradition\n• **Hand Eating**: Cultural practice of eating with hands\n• **Coffee Ceremony**: Social bonding through coffee ritual\n\n*Try our Ethiopian food lookup for authentic nutrition info!*"
+    };
+    
+    // Check for African food keywords with fuzzy matching
+    for (const [keyword, response] of Object.entries(africanFoodKeywords)) {
+        if (lowerMessage.includes(keyword) || 
+            lowerMessage.includes(keyword.replace(' ', '')) ||
+            keyword.includes(lowerMessage.split(' ')[0])) {
+            return response;
+        }
+    }
+    
+    // Check for Amharic terms (Ethiopian language)
+    if (lowerMessage.includes('ኢንጀራ') || lowerMessage.includes('injera')) {
+        return africanFoodKeywords['injera'];
+    }
+    if (lowerMessage.includes('ዶሮ') || lowerMessage.includes('ወጥ') || lowerMessage.includes('doro wat')) {
+        return africanFoodKeywords['doro wat'];
+    }
+    if (lowerMessage.includes('በርበሬ') || lowerMessage.includes('berbere')) {
+        return africanFoodKeywords['berbere'];
+    }
+    
+    // Return null if no African food matches
+    return null;
+}
+
 // Welcome message
 console.log('%c🍎 SmartEats - Hackathon 2025', 'color: #16a085; font-size: 20px; font-weight: bold;');
 console.log('%c🌍 Fighting Hunger (SDG 2) & Promoting Health (SDG 3)', 'color: #27ae60; font-size: 14px;');
 console.log('%c🛠️ Tech Stack: HTML5 + CSS3 + JS + Python Flask + MySQL/MongoDB/Firebase', 'color: #3498db; font-size: 12px;');
 console.log('%c✨ Advanced Features: AI, Community, Wellness, Sustainability + Authentication', 'color: #9b59b6; font-size: 12px;');
 console.log('%c🤖 NEW: Advanced AI Coach, Smart Notifications, Meal Planning & Achievements!', 'color: #e74c3c; font-size: 14px; font-weight: bold;');
+console.log('%c🌍 NEW: Traditional African Foods Database - Cultural Nutrition Diversity!', 'color: #f39c12; font-size: 14px; font-weight: bold;');
