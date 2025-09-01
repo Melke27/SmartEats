@@ -1,0 +1,38 @@
+# SmartEats Backend Requirements
+# Python Flask + Multiple Database Support
+
+# Core Flask Framework
+Flask==2.3.3
+Flask-CORS==4.0.0
+
+# Database Drivers
+mysql-connector-python==8.1.0   # MySQL support
+pymongo==4.5.0                   # MongoDB support
+firebase-admin==6.2.0            # Firebase support
+
+# API and HTTP
+requests==2.31.0                 # For Hugging Face API calls
+python-dotenv==1.0.0            # Environment variables
+
+# Utilities
+python-dateutil==2.8.2          # Date handling
+cryptography==41.0.4            # Security utilities
+
+# Advanced Features Dependencies (Windows Compatible)
+openai>=1.0.0                   # OpenAI API
+stripe>=6.0.0                   # Payment processing
+Flask-Mail>=0.9.1               # Email notifications
+APScheduler>=3.10.0             # Task scheduling
+jsonschema>=4.17.0              # Data validation
+Pillow>=9.0.0                   # Image processing
+
+# Optional analytics (install manually if needed)
+# pandas>=2.0.0                 # Data analysis
+# numpy>=1.24.0                # Numerical computations
+# celery>=5.3.0                # Background tasks
+# redis>=5.0.0                 # Caching and task queue
+
+# Optional: Enhanced features
+# flask-sqlalchemy==3.0.5       # ORM alternative
+# marshmallow==3.20.1           # Serialization
+# flask-jwt-extended==4.5.2     # JWT authentication

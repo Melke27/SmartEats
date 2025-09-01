@@ -1,0 +1,183 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smarteats-app
+  labels:
+    app: smarteats
+    component: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: smarteats
+      component: web
+  template:
+    metadata:
+      labels:
+        app: smarteats
+        component: web
+    spec:
+      containers:
+      - name: smarteats
+        image: smarteats:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_ENV
+          value: "production"
+        - name: DATABASE_TYPE
+          value: "mysql"
+        - name: MYSQL_HOST
+          value: "smarteats-mysql-service"
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: smarteats-secrets
+              key: mysql-user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smarteats-secrets
+              key: mysql-password
+        - name: HUGGING_FACE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: smarteats-secrets
+              key: hugging-face-key
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smarteats-service
+spec:
+  selector:
+    app: smarteats
+    component: web
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smarteats-mysql
+  labels:
+    app: smarteats
+    component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smarteats
+      component: database
+  template:
+    metadata:
+      labels:
+        app: smarteats
+        component: database
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smarteats-secrets
+              key: mysql-root-password
+        - name: MYSQL_DATABASE
+          value: "smarteats"
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: smarteats-secrets
+              key: mysql-user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smarteats-secrets
+              key: mysql-password
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+      - name: mysql-initdb
+        configMap:
+          name: mysql-initdb-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smarteats-mysql-service
+spec:
+  selector:
+    app: smarteats
+    component: database
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: smarteats-secrets
+type: Opaque
+data:
+  mysql-root-password: cm9vdHBhc3N3b3JkMTIz  # base64 encoded
+  mysql-user: c21hcnRlYXRz  # base64 encoded
+  mysql-password: c21hcnRlYXRzMTIz  # base64 encoded
+  hugging-face-key: aGZfeW91cl9rZXlfaGVyZQ==  # base64 encoded
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-initdb-config
+data:
+  database_setup.sql: |
+    -- SmartEats Database Schema will be loaded from your database_setup.sql file

@@ -1,0 +1,66 @@
+[build]
+  # Build command (no build needed for static files)
+  command = "echo 'Building SmartEats...'"
+  
+  # Directory to publish (current directory since frontend files are in root)
+  publish = "."
+  
+  # Functions directory for serverless backend
+  functions = "netlify/functions"
+
+[build.environment]
+  # Environment variables for build process
+  NODE_VERSION = "18"
+  PYTHON_VERSION = "3.11"
+
+# Redirect rules for SPA routing
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; img-src 'self' https: data: blob:; font-src 'self' https: data:;"
+
+# Cache control for static assets
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+# Environment-specific settings
+[context.production]
+  command = "echo 'Production build for SmartEats'"
+  
+[context.deploy-preview]
+  command = "echo 'Deploy preview for SmartEats'"
+
+[context.branch-deploy]
+  command = "echo 'Branch deploy for SmartEats'"

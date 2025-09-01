@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # SmartEats Web Application
+  smarteats-app:
+    build: .
+    container_name: smarteats-app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_TYPE=mysql
+      - MYSQL_HOST=smarteats-db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=smarteats
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-smarteats123}
+      - MYSQL_DB=smarteats
+    depends_on:
+      - smarteats-db
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - smarteats-network
+
+  # MySQL Database
+  smarteats-db:
+    image: mysql:8.0
+    container_name: smarteats-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-rootpassword123}
+      - MYSQL_DATABASE=smarteats
+      - MYSQL_USER=smarteats
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-smarteats123}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database_setup.sql:/docker-entrypoint-initdb.d/database_setup.sql
+    restart: unless-stopped
+    networks:
+      - smarteats-network
+
+  # Redis (for caching and sessions)
+  smarteats-redis:
+    image: redis:7-alpine
+    container_name: smarteats-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - smarteats-network
+
+  # MongoDB (Alternative database option)
+  smarteats-mongo:
+    image: mongo:6.0
+    container_name: smarteats-mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-mongopassword123}
+      - MONGO_INITDB_DATABASE=smarteats
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    networks:
+      - smarteats-network
+    profiles:
+      - mongodb
+
+  # Nginx Reverse Proxy (for production)
+  smarteats-nginx:
+    image: nginx:alpine
+    container_name: smarteats-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - smarteats-app
+    restart: unless-stopped
+    networks:
+      - smarteats-network
+    profiles:
+      - production
+
+volumes:
+  mysql_data:
+  redis_data:
+  mongo_data:
+
+networks:
+  smarteats-network:
+    driver: bridge

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍎 SmartEats - SDG Nutrition Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">🍎 SmartEats</h1>
+                <button class="user-profile-btn" onclick="openProfileModal()">
+                    👤 My Profile
+                </button>
+            </div>
+            <p class="tagline">Fighting Hunger & Promoting Health through Smart Nutrition | SDG 2 & 3</p>
+            <nav class="nav">
+                <button class="nav-btn active" data-tab="dashboard">📊 Dashboard</button>
+                <button class="nav-btn" data-tab="nutrition">🧮 Nutrition</button>
+                <button class="nav-btn" data-tab="meals">🍽️ Recipes</button>
+                <button class="nav-btn" data-tab="chat">🤖 AI Assistant</button>
+                <button class="nav-btn" data-tab="wellness">💪 Wellness</button>
+                <button class="nav-btn" data-tab="community">🏆 Community</button>
+                <button class="nav-btn" data-tab="sustainability">🌱 Sustainability</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- SDG Goals Banner -->
+            <div class="sdg-banner">
+                <div class="sdg-goal">
+                    <div class="sdg-icon">🎯</div>
+                    <h3>SDG 2: Zero Hunger</h3>
+                    <p>Smart nutrition planning and meal recommendations</p>
+                </div>
+                <div class="sdg-goal">
+                    <div class="sdg-icon">🏥</div>
+                    <h3>SDG 3: Good Health</h3>
+                    <p>Health tracking and wellness guidance</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <!-- Hero Section -->
+                <div class="hero-section">
+                    <div class="hero-content">
+                        <h1 class="hero-title">Welcome to SmartEats!</h1>
+                        <p class="hero-subtitle">Your AI-powered nutrition companion fighting hunger and promoting health worldwide</p>
+                        <button class="hero-cta" onclick="showSection('nutrition')">Start Your Health Journey</button>
+                    </div>
+                </div>
+
+                <!-- Statistics Dashboard -->
+                <div class="stats-dashboard">
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-number" id="caloriesConsumed">1,250</div>
+                        <div class="stat-text">Calories Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💧</div>
+                        <div class="stat-number" id="waterIntake">1.5L</div>
+                        <div class="stat-text">Water Intake</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🍽️</div>
+                        <div class="stat-number" id="mealsLogged">3</div>
+                        <div class="stat-text">Meals Logged</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-number" id="proteinProgress">75%</div>
+                        <div class="stat-text">Protein Goal</div>
+                    </div>
+                </div>
+
+                <!-- Feature Grid -->
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="showSection('nutrition')">
+                        <div class="feature-icon">🧮</div>
+                        <h3 class="feature-title">Nutrition Calculator</h3>
+                        <p class="feature-description">Get personalized nutrition recommendations based on your body metrics and activity level</p>
+                    </div>
+                    <div class="feature-card" onclick="showSection('meals')">
+                        <div class="feature-icon">🍳</div>
+                        <h3 class="feature-title">Recipe Finder</h3>
+                        <p class="feature-description">Discover healthy recipes using ingredients you have at home</p>
+                    </div>
+                    <div class="feature-card" onclick="showSection('chat')">
+                        <div class="feature-icon">🤖</div>
+                        <h3 class="feature-title">AI Assistant</h3>
+                        <p class="feature-description">Chat with our AI nutrition expert for personalized advice and tips</p>
+                    </div>
+                    <div class="feature-card" onclick="showSection('wellness')">
+                        <div class="feature-icon">💪</div>
+                        <h3 class="feature-title">Wellness Tracking</h3>
+                        <p class="feature-description">Monitor your sleep, stress, and overall wellness for better health</p>
+                    </div>
+                    <div class="feature-card" onclick="showSection('community')">
+                        <div class="feature-icon">🏆</div>
+                        <h3 class="feature-title">Community</h3>
+                        <p class="feature-description">Join challenges, compete with friends, and make a difference together</p>
+                    </div>
+                    <div class="feature-card" onclick="showSection('sustainability')">
+                        <div class="feature-icon">🌱</div>
+                        <h3 class="feature-title">Sustainability</h3>
+                        <p class="feature-description">Track your environmental impact and make eco-friendly food choices</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nutrition Calculator Tab -->
+            <div id="nutrition" class="tab-content">
+                <h2>🧮 Nutrition Calculator</h2>
+                <div class="form-container">
+                    <form id="nutritionForm" class="nutrition-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" min="10" max="120" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" required>
+                                    <option value="">Select...</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="height">Height (cm)</label>
+                                <input type="number" id="height" min="100" max="250" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="weight">Weight (kg)</label>
+                                <input type="number" id="weight" min="30" max="300" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="activity">Activity Level</label>
+                            <select id="activity" required>
+                                <option value="">Select...</option>
+                                <option value="sedentary">Sedentary (little/no exercise)</option>
+                                <option value="light">Light (1-3 days/week)</option>
+                                <option value="moderate">Moderate (3-5 days/week)</option>
+                                <option value="very">Very Active (6-7 days/week)</option>
+                                <option value="extra">Extremely Active (2x/day)</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">Calculate My Nutrition Needs</button>
+                    </form>
+
+                    <div id="nutritionResults" class="results-container" style="display: none;">
+                        <h3>📋 Your Personalized Results</h3>
+                        <div class="results-grid">
+                            <div class="result-item">
+                                <span class="result-label">BMI</span>
+                                <span class="result-value" id="bmiResult">--</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Daily Calories</span>
+                                <span class="result-value" id="caloriesResult">--</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Protein (g)</span>
+                                <span class="result-value" id="proteinResult">--</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Carbs (g)</span>
+                                <span class="result-value" id="carbsResult">--</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Fat (g)</span>
+                                <span class="result-value" id="fatResult">--</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Water (L)</span>
+                                <span class="result-value" id="waterResult">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meals Tab -->
+            <div id="meals" class="tab-content">
+                <h2>🍽️ Recipe Recommender (SDG 2: Zero Hunger)</h2>
+                
+                <!-- Food Nutrition Lookup -->
+                <div class="feature-section">
+                    <h3>🔍 Food Nutrition Lookup</h3>
+                    <div class="search-container">
+                        <input type="text" id="foodLookup" placeholder="Enter any food (e.g., apple, chicken breast)" class="search-input">
+                        <button onclick="lookupFoodNutrition()" class="btn-secondary">Look Up Nutrition</button>
+                    </div>
+                    <div id="nutritionLookupResult" style="display: none;"></div>
+                </div>
+                
+                <!-- Recipe Search -->
+                <div class="feature-section">
+                    <h3>🍳 Recipe Search by Ingredients</h3>
+                    <div class="search-container">
+                        <input type="text" id="ingredientSearch" placeholder="Enter ingredients (e.g., chicken, tomatoes)" class="search-input">
+                        <button onclick="searchRecipes()" class="btn-primary">Find Recipes</button>
+                    </div>
+                </div>
+                
+                <div id="recipeResults" class="recipe-grid">
+                    <!-- Sample recipes will be populated here -->
+                    <div class="recipe-card">
+                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop" alt="Salad">
+                        <div class="recipe-content">
+                            <h3>Healthy Garden Salad</h3>
+                            <p>Fresh vegetables with lean protein</p>
+                            <div class="recipe-nutrition">
+                                <span>🔥 350 cal</span>
+                                <span>🥩 25g protein</span>
+                                <span>⏱️ 15 min</span>
+                            </div>
+                            <button onclick="logMeal('salad')" class="btn-secondary">Log Meal</button>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-card">
+                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=200&fit=crop" alt="Grilled Chicken">
+                        <div class="recipe-content">
+                            <h3>Grilled Chicken & Rice</h3>
+                            <p>Lean protein with whole grains</p>
+                            <div class="recipe-nutrition">
+                                <span>🔥 450 cal</span>
+                                <span>🥩 35g protein</span>
+                                <span>⏱️ 25 min</span>
+                            </div>
+                            <button onclick="logMeal('chicken')" class="btn-secondary">Log Meal</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Chat Tab -->
+            <div id="chat" class="tab-content">
+                <h2>🤖 AI Nutrition Assistant</h2>
+                <div class="chat-container">
+                    <div id="chatMessages" class="chat-messages">
+                        <div class="message bot-message">
+                            <div class="message-content">
+                                <p>👋 Hello! I'm your AI nutrition assistant. Ask me about healthy eating, meal planning, or nutrition facts!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <input type="text" id="chatInput" placeholder="Ask about nutrition, recipes, or health tips..." class="chat-input">
+                        <button onclick="sendMessage()" class="btn-primary">Send</button>
+                    </div>
+                    
+                    <div class="suggested-questions">
+                        <h4>💡 Suggested Questions:</h4>
+                        <button onclick="askQuestion('How much protein do I need daily?')" class="suggestion-btn">Protein needs</button>
+                        <button onclick="askQuestion('What are healthy snack options?')" class="suggestion-btn">Healthy snacks</button>
+                        <button onclick="askQuestion('How can I lose weight safely?')" class="suggestion-btn">Weight loss tips</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wellness Tab -->
+            <div id="wellness" class="tab-content">
+                <h2>🧘 Wellness & Lifestyle Tracker</h2>
+                
+                <!-- Sleep & Stress Tracking -->
+                <div class="wellness-section">
+                    <h3>💤 Sleep & Stress Monitor</h3>
+                    <div class="wellness-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sleepHours">Sleep Hours Last Night</label>
+                                <input type="number" id="sleepHours" min="0" max="24" step="0.5" placeholder="8">
+                            </div>
+                            <div class="form-group">
+                                <label for="stressLevel">Stress Level (1-10)</label>
+                                <input type="range" id="stressLevel" min="1" max="10" value="5">
+                                <span id="stressValue">5</span>
+                            </div>
+                        </div>
+                        <button onclick="trackWellness()" class="btn-primary">Track Wellness</button>
+                    </div>
+                    <div id="wellnessResults" class="wellness-results" style="display: none;"></div>
+                </div>
+
+                <!-- Voice Assistant -->
+                <div class="wellness-section">
+                    <h3>🎤 Voice Nutrition Assistant</h3>
+                    <div class="voice-controls">
+                        <select id="voiceLanguage" class="form-select">
+                            <option value="en">English</option>
+                            <option value="am">አማርኛ (Amharic)</option>
+                            <option value="sw">Kiswahili</option>
+                            <option value="fr">Français</option>
+                        </select>
+                        <button onclick="startVoiceCommand()" class="btn-secondary">🎤 Start Voice Command</button>
+                    </div>
+                    <div id="voiceResults" class="voice-results" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Community Tab -->
+            <div id="community" class="tab-content">
+                <h2>🤝 Community & Challenges</h2>
+                
+                <!-- Leaderboard -->
+                <div class="community-section">
+                    <h3>🏆 Community Leaderboard</h3>
+                    <div id="leaderboard" class="leaderboard">
+                        <div class="leaderboard-item">
+                            <span class="rank">🏆 #1</span>
+                            <span class="username">HealthHero123</span>
+                            <span class="score">950 pts</span>
+                            <span class="streak">15-day streak</span>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="rank">🥈 #2</span>
+                            <span class="username">NutritionNinja</span>
+                            <span class="score">890 pts</span>
+                            <span class="streak">12-day streak</span>
+                        </div>
+                    </div>
+                    <button onclick="loadLeaderboard()" class="btn-secondary">Refresh Leaderboard</button>
+                </div>
+
+                <!-- Weekly Challenges -->
+                <div class="community-section">
+                    <h3>🎯 Weekly Challenges</h3>
+                    <div id="challenges" class="challenges-grid">
+                        <div class="challenge-card">
+                            <h4>💧 Hydration Hero</h4>
+                            <p>Drink 8 glasses of water daily for 7 days</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 70%;"></div>
+                            </div>
+                            <span class="progress-text">5/7 days completed</span>
+                            <span class="reward">🏅 50 points + Badge</span>
+                        </div>
+                        <div class="challenge-card">
+                            <h4>🥬 Veggie Champion</h4>
+                            <p>Eat 5 servings of vegetables daily</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 43%;"></div>
+                            </div>
+                            <span class="progress-text">3/7 days completed</span>
+                            <span class="reward">🏅 75 points + Badge</span>
+                        </div>
+                    </div>
+                    <button onclick="loadChallenges()" class="btn-primary">Load New Challenges</button>
+                </div>
+
+                <!-- Donation Impact -->
+                <div class="community-section">
+                    <h3>🙏 Fight Hunger Together</h3>
+                    <div class="donation-container">
+                        <p>Support SDG 2: Zero Hunger by helping provide nutritious meals</p>
+                        <div class="donation-form">
+                            <input type="number" id="donationAmount" placeholder="Amount ($)" min="1">
+                            <button onclick="calculateDonationImpact()" class="btn-primary">Calculate Impact</button>
+                        </div>
+                        <div id="donationImpact" class="donation-impact" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sustainability Tab -->
+            <div id="sustainability" class="tab-content">
+                <h2>🌍 Environmental Impact</h2>
+                
+                <!-- Sustainability Calculator -->
+                <div class="sustainability-section">
+                    <h3>🌱 Meal Sustainability Checker</h3>
+                    <div class="sustainability-form">
+                        <textarea id="mealsList" placeholder="List your recent meals (one per line):\nGrilled chicken with vegetables\nQuinoa salad\nFruit smoothie" rows="4"></textarea>
+                        <button onclick="checkSustainability()" class="btn-primary">Check Environmental Impact</button>
+                    </div>
+                    <div id="sustainabilityResults" class="sustainability-results" style="display: none;"></div>
+                </div>
+
+                <!-- Smart Grocery List -->
+                <div class="sustainability-section">
+                    <h3>🛒 Smart & Sustainable Grocery List</h3>
+                    <div class="grocery-controls">
+                        <input type="number" id="mealPlanDays" placeholder="Days" value="7" min="1" max="30">
+                        <button onclick="generateGroceryList()" class="btn-secondary">Generate Eco-Friendly List</button>
+                    </div>
+                    <div id="groceryList" class="grocery-results" style="display: none;"></div>
+                </div>
+
+                <!-- Carbon Footprint Tracker -->
+                <div class="sustainability-section">
+                    <h3>📊 Carbon Footprint Tracker</h3>
+                    <div class="carbon-tracker">
+                        <div class="carbon-stats">
+                            <div class="carbon-stat">
+                                <span class="carbon-value" id="weeklyCarbon">12.3</span>
+                                <span class="carbon-label">kg CO2 this week</span>
+                            </div>
+                            <div class="carbon-stat">
+                                <span class="carbon-value" id="waterSaved">450</span>
+                                <span class="carbon-label">liters water saved</span>
+                            </div>
+                        </div>
+                        <div class="eco-tips">
+                            <h4>🌿 Eco-Friendly Tips</h4>
+                            <ul>
+                                <li>🌱 Choose plant-based proteins 2-3 times per week</li>
+                                <li>🏪 Buy local and seasonal produce</li>
+                                <li>♻️ Reduce food waste with meal planning</li>
+                                <li>🚰 Use reusable water bottles</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>🍎 SmartEats</h4>
+                    <p>Supporting UN Sustainable Development Goals through nutrition technology</p>
+                </div>
+                <div class="footer-section">
+                    <h4>🌍 SDG Impact</h4>
+                    <ul>
+                        <li>SDG 2: Zero Hunger</li>
+                        <li>SDG 3: Good Health</li>
+                        <li>Technology for Good</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>🛠️ Tech Stack</h4>
+                    <ul>
+                        <li>HTML5 + CSS3 + JS</li>
+                        <li>Python Flask Backend</li>
+                        <li>MySQL + MongoDB + Firebase</li>
+                        <li>Hugging Face AI API</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 SmartEats - Hackathon 2025 | Fighting Hunger & Promoting Health</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- User Profile Modal -->
+    <div id="profileModal" class="profile-modal">
+        <div class="profile-content">
+            <button class="close-btn" onclick="closeProfileModal()">&times;</button>
+            
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">👤</div>
+                <h2 id="profileName">Welcome to SmartEats!</h2>
+                <p>Manage your nutrition profile and preferences</p>
+            </div>
+            
+            <div class="profile-tabs">
+                <button class="profile-tab active" data-profile-tab="info">Personal Info</button>
+                <button class="profile-tab" data-profile-tab="goals">Goals</button>
+                <button class="profile-tab" data-profile-tab="history">History</button>
+            </div>
+            
+            <!-- Personal Info Tab -->
+            <div id="profileInfo" class="profile-tab-content active">
+                <form class="profile-form" id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="profileName">Full Name</label>
+                            <input type="text" id="profileNameInput" placeholder="Enter your name">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileEmail">Email</label>
+                            <input type="email" id="profileEmail" placeholder="your@email.com">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="profileAge">Age</label>
+                            <input type="number" id="profileAge" min="10" max="120">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileGender">Gender</label>
+                            <select id="profileGender">
+                                <option value="">Select...</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="profileHeight">Height (cm)</label>
+                            <input type="number" id="profileHeight" min="100" max="250">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileWeight">Weight (kg)</label>
+                            <input type="number" id="profileWeight" min="30" max="300">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profileActivity">Activity Level</label>
+                        <select id="profileActivity">
+                            <option value="">Select...</option>
+                            <option value="sedentary">Sedentary</option>
+                            <option value="light">Light</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="very">Very Active</option>
+                            <option value="extra">Extremely Active</option>
+                        </select>
+                    </div>
+                    
+                    <button type="button" onclick="saveProfile()" class="btn btn-gradient">💾 Save Profile</button>
+                </form>
+            </div>
+            
+            <!-- Goals Tab -->
+            <div id="profileGoals" class="profile-tab-content">
+                <div class="profile-form">
+                    <div class="form-group">
+                        <label for="calorieGoal">Daily Calorie Goal</label>
+                        <input type="number" id="calorieGoal" placeholder="2000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="weightGoal">Weight Goal (kg)</label>
+                        <input type="number" id="weightGoal" placeholder="70">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="waterGoal">Daily Water Goal (L)</label>
+                        <input type="number" id="waterGoal" step="0.1" placeholder="2.5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dietaryRestrictions">Dietary Restrictions</label>
+                        <select id="dietaryRestrictions" multiple>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="gluten-free">Gluten-Free</option>
+                            <option value="dairy-free">Dairy-Free</option>
+                            <option value="nut-free">Nut-Free</option>
+                        </select>
+                    </div>
+                    
+                    <button type="button" onclick="saveGoals()" class="btn btn-accent">🎯 Save Goals</button>
+                </div>
+            </div>
+            
+            <!-- History Tab -->
+            <div id="profileHistory" class="profile-tab-content">
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <span class="profile-stat-value" id="totalMeals">127</span>
+                        <span class="profile-stat-label">Total Meals</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="profile-stat-value" id="streakDays">15</span>
+                        <span class="profile-stat-label">Day Streak</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="profile-stat-value" id="pointsEarned">1,340</span>
+                        <span class="profile-stat-label">Points Earned</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="profile-stat-value" id="badgesEarned">8</span>
+                        <span class="profile-stat-label">Badges Earned</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h4>🏆 Recent Achievements</h4>
+                    <div style="margin-top: 1rem;">
+                        <div class="alert alert-success">🥇 Completed Hydration Hero challenge!</div>
+                        <div class="alert alert-success">🌱 Earned Plant Power badge!</div>
+                        <div class="alert alert-success">📅 15-day nutrition tracking streak!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toastMessage">Notification message</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
