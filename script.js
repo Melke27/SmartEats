@@ -1580,6 +1580,9 @@ function logout() {
     AppState.currentUser = null;
     localStorage.removeItem('smarteats_currentUser');
     
+    // Clear JWT authentication token
+    clearAuthToken();
+    
     // Update UI
     document.getElementById('loginBtn').style.display = 'block';
     document.getElementById('signupBtn').style.display = 'block';

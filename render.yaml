@@ -2,8 +2,8 @@ services:
   - type: web
     name: smarteats-api
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT backend_production:app
+    buildCommand: pip install Flask Flask-CORS gunicorn
+    startCommand: gunicorn app:app --host=0.0.0.0 --port=$PORT
     envVars:
       - key: FLASK_ENV
         value: production

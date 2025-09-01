@@ -21,10 +21,12 @@ from typing import List, Dict, Optional
 
 # Initialize Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'smarteats-hackathon-2025-sdg-key'
+
+# Production-ready configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'smarteats-hackathon-2025-sdg-key')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///smarteats.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'jwt-secret-smarteats-2025'
+app.config['JWT_SECRET_KEY'] = os.environ.get('SECRET_KEY', 'jwt-secret-smarteats-2025')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 
 # Initialize extensions
@@ -1097,11 +1099,12 @@ def invalid_token_callback(error):
 
 # ===== INITIALIZE DATABASE AND RUN APP =====
 
+# Initialize database for production
+with app.app_context():
+    db.create_all()
+    init_sample_data()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        init_sample_data()
-        
     print("🍎 SmartEats API Server Starting...")
     print("🌍 Fighting Hunger (SDG 2) & Promoting Health (SDG 3)")
     print("🚀 Server running on http://localhost:5000")
