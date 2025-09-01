@@ -6,8 +6,11 @@
  * Advanced Features: AI, Community, Wellness, Sustainability
  */
 
-// API Configuration
-const API_BASE_URL = 'http://localhost:5000/api';
+// API Configuration - Production Backend
+const API_BASE_URL = 'https://smarteats-1.onrender.com/api';
+
+// Fallback for local development
+// const API_BASE_URL = 'http://localhost:5000/api';
 
 // Global State Management
 const AppState = {
