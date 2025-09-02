@@ -160,12 +160,32 @@ jobs:
             curl \
             && rm -rf /var/lib/apt/lists/*
         
-        # Copy requirements and install Python dependencies
-        COPY requirements.txt .
-        RUN pip install --no-cache-dir flask flask-sqlalchemy flask-jwt-extended flask-cors gunicorn
+        # Install Python dependencies directly (no requirements.txt dependency)
+        RUN pip install --no-cache-dir \
+            flask==2.3.3 \
+            flask-sqlalchemy==3.0.5 \
+            flask-jwt-extended==4.5.2 \
+            flask-cors==4.0.0 \
+            werkzeug==2.3.7 \
+            sqlalchemy==2.0.21 \
+            gunicorn==21.2.0 \
+            redis==4.6.0 \
+            psycopg2-binary==2.9.7 \
+            prometheus-client==0.17.1
         
         # Copy application
         COPY . .
+        
+        # Create a simple entrypoint script
+        RUN echo '#!/bin/bash' > entrypoint.sh && \
+            echo 'if [ -f "production_backend.py" ]; then' >> entrypoint.sh && \
+            echo '  exec gunicorn --bind 0.0.0.0:5000 --workers 2 production_backend:app' >> entrypoint.sh && \
+            echo 'elif [ -f "app.py" ]; then' >> entrypoint.sh && \
+            echo '  exec gunicorn --bind 0.0.0.0:5000 --workers 2 app:app' >> entrypoint.sh && \
+            echo 'else' >> entrypoint.sh && \
+            echo '  exec gunicorn --bind 0.0.0.0:5000 --workers 2 simple_app:app' >> entrypoint.sh && \
+            echo 'fi' >> entrypoint.sh && \
+            chmod +x entrypoint.sh
         
         # Create non-root user
         RUN useradd --create-home --shell /bin/bash smarteats
@@ -174,7 +194,7 @@ jobs:
         
         EXPOSE 5000
         
-        CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:app"]
+        CMD ["./entrypoint.sh"]
         EOF
 
     - name: 🔨 Build and Push Docker Image
