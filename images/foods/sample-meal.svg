@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Background -->
+  <rect width="400" height="400" fill="#F8F8F8"/>
+  
+  <!-- Plate -->
+  <circle cx="200" cy="220" r="150" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="4"/>
+  <circle cx="200" cy="220" r="140" fill="#FAFAFA"/>
+  
+  <!-- Food items -->
+  <!-- Rice/grain base -->
+  <ellipse cx="200" cy="240" rx="80" ry="30" fill="#FFF8DC"/>
+  
+  <!-- Vegetables -->
+  <circle cx="150" cy="200" r="20" fill="#FF6B35"/> <!-- carrot -->
+  <ellipse cx="250" cy="200" rx="18" ry="25" fill="#4CAF50"/> <!-- broccoli -->
+  <circle cx="180" cy="180" r="12" fill="#8BC34A"/> <!-- pea -->
+  <ellipse cx="220" cy="190" rx="15" ry="20" fill="#FF5722"/> <!-- tomato -->
+  
+  <!-- Protein -->
+  <ellipse cx="200" cy="280" rx="40" ry="15" fill="#D2691E"/>
+  
+  <!-- Garnish -->
+  <circle cx="160" cy="250" r="5" fill="#9ACD32"/>
+  <circle cx="240" cy="250" r="4" fill="#FFD700"/>
+  <circle cx="200" cy="160" r="3" fill="#FF69B4"/>
+  
+  <!-- Text -->
+  <text x="200" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#666">Balanced Meal</text>
+  <text x="200" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#999">Sample Nutrition Image</text>
+</svg>

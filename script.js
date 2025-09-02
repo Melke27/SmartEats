@@ -2958,6 +2958,144 @@ function exploreMoreAfricanFoods(region) {
     }, 10000);
 }
 
+// === IMAGE HANDLING FUNCTIONS ===
+
+// Load images from backend
+async function loadImages() {
+    try {
+        const response = await fetch('/api/images/list');
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log('✅ Images loaded:', data.images);
+            return data.images;
+        } else {
+            console.error('❌ Failed to load images:', data.message);
+        }
+    } catch (error) {
+        console.error('❌ Error loading images:', error);
+    }
+    return null;
+}
+
+// Upload image file
+async function uploadImage(file) {
+    try {
+        showLoading('Uploading image...');
+        
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        const token = localStorage.getItem('auth_token');
+        const response = await fetch('/api/images/upload', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        hideLoading();
+        
+        if (data.success) {
+            showAlert(`✅ Image uploaded successfully!`, 'success');
+            console.log('📸 Image URL:', data.image_url);
+            return data.image_url;
+        } else {
+            showAlert(`❌ Upload failed: ${data.message}`, 'error');
+        }
+    } catch (error) {
+        hideLoading();
+        showAlert('❌ Error uploading image', 'error');
+        console.error('❌ Upload error:', error);
+    }
+    return null;
+}
+
+// Handle image upload input change
+function handleImageUpload(inputElement) {
+    const file = inputElement.files[0];
+    if (file) {
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/svg+xml'];
+        if (!allowedTypes.includes(file.type)) {
+            showAlert('❌ Please select a valid image file (JPEG, PNG, WebP, or SVG)', 'error');
+            return;
+        }
+        
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+            showAlert('❌ File size must be less than 5MB', 'error');
+            return;
+        }
+        
+        uploadImage(file);
+    }
+}
+
+// Create image preview
+function createImagePreview(file, container) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.maxWidth = '200px';
+        img.style.maxHeight = '200px';
+        img.style.borderRadius = '8px';
+        img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+        
+        container.innerHTML = '';
+        container.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+}
+
+// Update recipe cards with proper image handling
+function updateRecipeImages() {
+    const recipeCards = document.querySelectorAll('.recipe-card');
+    recipeCards.forEach((card, index) => {
+        const img = card.querySelector('img');
+        if (img && img.src.includes('data:image/svg+xml')) {
+            // Replace placeholder with actual food image from our backend
+            const foodImages = {
+                0: '/images/foods/sample-meal.svg',
+                1: '/images/foods/sample-meal.svg'
+            };
+            
+            if (foodImages[index]) {
+                img.src = foodImages[index];
+                img.onerror = function() {
+                    // Fallback to original placeholder if our image fails
+                    this.src = this.getAttribute('data-original-src') || this.src;
+                };
+            }
+        }
+    });
+}
+
+// Initialize image functionality
+function initializeImages() {
+    // Update recipe images on page load
+    updateRecipeImages();
+    
+    // Load available images
+    loadImages().then(images => {
+        if (images) {
+            console.log('🖼️ Available images:', images);
+            // Store images in app state for later use
+            AppState.availableImages = images;
+        }
+    });
+}
+
+// Call initialize images when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeImages);
+} else {
+    initializeImages();
+}
+
 // Enhanced local response generation with African food integration
 function generateLocalResponseWithAfricanFoods(message) {
     const lowerMessage = message.toLowerCase();

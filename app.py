@@ -286,6 +286,83 @@ def api_health():
         'status': 'healthy'
     })
 
+# ===== IMAGE ROUTES =====
+
+@app.route('/images/<path:filepath>')
+def serve_images(filepath):
+    """Serve images from the images directory"""
+    return send_from_directory('images', filepath)
+
+@app.route('/api/images/upload', methods=['POST'])
+@jwt_required()
+def upload_image():
+    """Handle image uploads"""
+    try:
+        user_id = get_jwt_identity()
+        
+        # Check if image file is in request
+        if 'image' not in request.files:
+            return jsonify({'success': False, 'message': 'No image file provided'}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'success': False, 'message': 'No file selected'}), 400
+        
+        # Check file type
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'webp', 'svg'}
+        if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+            return jsonify({'success': False, 'message': 'Invalid file type'}), 400
+        
+        # Generate unique filename
+        import uuid
+        file_extension = file.filename.rsplit('.', 1)[1].lower()
+        unique_filename = f"{uuid.uuid4().hex}.{file_extension}"
+        
+        # Save to uploads directory
+        import os
+        upload_path = os.path.join('images', 'uploads', unique_filename)
+        file.save(upload_path)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Image uploaded successfully',
+            'image_url': f'/images/uploads/{unique_filename}',
+            'filename': unique_filename
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/images/list')
+def list_images():
+    """List available images by category"""
+    try:
+        import os
+        images = {
+            'logos': [],
+            'icons': [],
+            'foods': [],
+            'uploads': []
+        }
+        
+        for category in images.keys():
+            category_path = os.path.join('images', category)
+            if os.path.exists(category_path):
+                for filename in os.listdir(category_path):
+                    if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp', '.svg')):
+                        images[category].append({
+                            'filename': filename,
+                            'url': f'/images/{category}/{filename}'
+                        })
+        
+        return jsonify({
+            'success': True,
+            'images': images
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 @app.route('/<path:filename>')
 def serve_static(filename):
     """Serve static files"""

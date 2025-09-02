@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Background -->
+  <rect width="200" height="60" rx="10" fill="#2E7D32" opacity="0.1"/>
+  
+  <!-- Food Bowl Icon -->
+  <circle cx="30" cy="30" r="15" fill="#4CAF50" opacity="0.8"/>
+  <ellipse cx="30" cy="25" rx="10" ry="8" fill="#66BB6A"/>
+  <circle cx="27" cy="22" r="2" fill="#81C784"/>
+  <circle cx="33" cy="24" r="1.5" fill="#A5D6A7"/>
+  <circle cx="30" cy="28" r="1" fill="#C8E6C9"/>
+  
+  <!-- Text -->
+  <text x="55" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#2E7D32">Smart</text>
+  <text x="55" y="45" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#4CAF50">Eats</text>
+  
+  <!-- Accent -->
+  <circle cx="175" cy="15" r="3" fill="#FF9800" opacity="0.7"/>
+  <circle cx="185" cy="20" r="2" fill="#FFC107" opacity="0.8"/>
+  <circle cx="180" cy="45" r="2.5" fill="#FF5722" opacity="0.6"/>
+</svg>
