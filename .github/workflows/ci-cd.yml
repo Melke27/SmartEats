@@ -59,22 +59,17 @@ jobs:
     - name: 📦 Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        # Install core dependencies first
-        pip install flask==2.3.3 flask-sqlalchemy==3.0.5 flask-jwt-extended==4.5.2 flask-cors==4.0.0
-        pip install werkzeug==2.3.7 sqlalchemy==2.0.21 gunicorn==21.2.0
-        # Install additional production dependencies with fallbacks
-        pip install pytest pytest-cov requests
-        # Install optional dependencies for production (with fallbacks)
-        pip install redis==4.6.0 || echo "Redis install failed, continuing..."
-        pip install psycopg2-binary==2.9.7 || echo "Psycopg2 install failed, continuing..."
-        pip install prometheus-client==0.17.1 || echo "Prometheus client install failed, continuing..."
-        # Install additional dependencies with fallbacks for missing modules
-        pip install flask-limiter || echo "Flask-Limiter install failed, continuing..."
-        pip install flask-caching || echo "Flask-Caching install failed, continuing..."
-        pip install flask-migrate || echo "Flask-Migrate install failed, continuing..."
-        pip install structlog || echo "Structlog install failed, continuing..."
-        pip install numpy || echo "Numpy install failed, continuing..."
-        pip install pandas || echo "Pandas install failed, continuing..."
+        # Install from requirements.txt (root level - compatible with current structure)
+        if [ -f "requirements.txt" ]; then
+          echo "Installing from root requirements.txt"
+          pip install -r requirements.txt
+        fi
+        # Install test dependencies
+        pip install pytest pytest-cov
+        # Install optional production dependencies with fallbacks (for CI environment)
+        pip install redis || echo "Redis install failed, continuing..."
+        pip install psycopg2-binary || echo "Psycopg2 install failed, continuing..."
+        pip install prometheus-client || echo "Prometheus client install failed, continuing..."
 
     - name: 🔧 Create Test Configuration
       run: |
@@ -158,59 +153,17 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: 📝 Create Dockerfile
+    - name: 📝 Validate Dockerfile
       run: |
-        cat > Dockerfile << 'EOF'
-        FROM python:3.9-slim
-        
-        WORKDIR /app
-        
-        # Install system dependencies
-        RUN apt-get update && apt-get install -y \
-            gcc \
-            libpq-dev \
-            curl \
-            && rm -rf /var/lib/apt/lists/*
-        
-        # Install Python dependencies directly (no requirements.txt dependency)
-        RUN pip install --no-cache-dir \
-            flask==2.3.3 \
-            flask-sqlalchemy==3.0.5 \
-            flask-jwt-extended==4.5.2 \
-            flask-cors==4.0.0 \
-            werkzeug==2.3.7 \
-            sqlalchemy==2.0.21 \
-            gunicorn==21.2.0 \
-            redis==4.6.0 \
-            psycopg2-binary==2.9.7 \
-            prometheus-client==0.17.1
-        
-        # Copy application
-        COPY . .
-        
-        # Create a simple entrypoint script that uses the fixed backend first
-        RUN echo '#!/bin/bash' > entrypoint.sh && \
-            echo 'if [ -f "production_backend_fixed.py" ]; then' >> entrypoint.sh && \
-            echo '  echo "Using fixed production backend"' >> entrypoint.sh && \
-            echo '  exec gunicorn --bind 0.0.0.0:5000 --workers 2 production_backend_fixed:app' >> entrypoint.sh && \
-            echo 'elif [ -f "app.py" ]; then' >> entrypoint.sh && \
-            echo '  echo "Using main app.py"' >> entrypoint.sh && \
-            echo '  exec gunicorn --bind 0.0.0.0:5000 --workers 2 app:app' >> entrypoint.sh && \
-            echo 'else' >> entrypoint.sh && \
-            echo '  echo "Using simple_app fallback"' >> entrypoint.sh && \
-            echo '  exec gunicorn --bind 0.0.0.0:5000 --workers 2 simple_app:app' >> entrypoint.sh && \
-            echo 'fi' >> entrypoint.sh && \
-            chmod +x entrypoint.sh
-        
-        # Create non-root user
-        RUN useradd --create-home --shell /bin/bash smarteats
-        RUN chown -R smarteats:smarteats /app
-        USER smarteats
-        
-        EXPOSE 5000
-        
-        CMD ["./entrypoint.sh"]
-        EOF
+        # Check if Dockerfile exists and is valid
+        if [ -f "Dockerfile" ]; then
+          echo "✅ Dockerfile found"
+          echo "📝 Dockerfile contents:"
+          head -20 Dockerfile
+        else
+          echo "❌ Dockerfile not found!"
+          exit 1
+        fi
 
     - name: 🔨 Build and Push Docker Image
       uses: docker/build-push-action@v5
