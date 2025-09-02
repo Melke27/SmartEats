@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍎 SmartEats - Enhanced Analytics Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="enhanced.css">
+    <link rel="stylesheet" href="enhanced-dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="african_foods.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">🍎 SmartEats</h1>
+                <div class="header-buttons">
+                    <button class="auth-btn" id="loginBtn" onclick="openLoginModal()" style="display: block;">
+                        🔐 Login
+                    </button>
+                    <button class="auth-btn" id="signupBtn" onclick="openSignupModal()" style="display: block;">
+                        📝 Sign Up
+                    </button>
+                    <button class="user-profile-btn" id="profileBtn" onclick="openProfileModal()" style="display: none;">
+                        👤 <span id="username">My Profile</span>
+                    </button>
+                    <button class="auth-btn" id="logoutBtn" onclick="logout()" style="display: none;">
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
+            <p class="tagline">Enhanced Analytics Dashboard - Fighting Hunger & Promoting Health | SDG 2 & 3</p>
+            <nav class="nav">
+                <button class="nav-btn active" data-tab="analytics">📊 Analytics</button>
+                <button class="nav-btn" data-tab="insights">🧠 Insights</button>
+                <button class="nav-btn" data-tab="planning">📅 Planning</button>
+                <button class="nav-btn" data-tab="goals">🎯 Goals</button>
+                <button class="nav-btn" data-tab="community">🏆 Community</button>
+                <button class="nav-btn" data-tab="cultural">🌍 Cultural</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Enhanced Analytics Dashboard -->
+            <div id="analytics" class="tab-content active">
+                <!-- Dashboard Header with Key Metrics -->
+                <div class="dashboard-header">
+                    <div class="welcome-section">
+                        <h2>📊 Your Nutrition Analytics</h2>
+                        <p>Comprehensive insights into your health journey</p>
+                    </div>
+                    <div class="health-score-card">
+                        <div class="health-score-circle">
+                            <span class="score-number" id="overallHealthScore">87</span>
+                            <span class="score-label">Health Score</span>
+                        </div>
+                        <div class="score-improvement">
+                            <span class="improvement-text">↗️ +5 this week</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Performance Indicators -->
+                <div class="kpi-grid">
+                    <div class="kpi-card calories">
+                        <div class="kpi-header">
+                            <span class="kpi-icon">🔥</span>
+                            <span class="kpi-title">Calories Today</span>
+                        </div>
+                        <div class="kpi-value" id="caloriesKPI">1,247</div>
+                        <div class="kpi-target">of 2,000 goal</div>
+                        <div class="kpi-progress">
+                            <div class="progress-ring">
+                                <canvas id="caloriesRing" width="60" height="60"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card protein">
+                        <div class="kpi-header">
+                            <span class="kpi-icon">🥩</span>
+                            <span class="kpi-title">Protein</span>
+                        </div>
+                        <div class="kpi-value" id="proteinKPI">89g</div>
+                        <div class="kpi-target">of 120g goal</div>
+                        <div class="kpi-progress">
+                            <div class="progress-ring">
+                                <canvas id="proteinRing" width="60" height="60"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card hydration">
+                        <div class="kpi-header">
+                            <span class="kpi-icon">💧</span>
+                            <span class="kpi-title">Hydration</span>
+                        </div>
+                        <div class="kpi-value" id="hydrationKPI">2.1L</div>
+                        <div class="kpi-target">of 2.5L goal</div>
+                        <div class="kpi-progress">
+                            <div class="progress-ring">
+                                <canvas id="hydrationRing" width="60" height="60"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card steps">
+                        <div class="kpi-header">
+                            <span class="kpi-icon">👟</span>
+                            <span class="kpi-title">Activity</span>
+                        </div>
+                        <div class="kpi-value" id="activityKPI">7,234</div>
+                        <div class="kpi-target">of 10,000 steps</div>
+                        <div class="kpi-progress">
+                            <div class="progress-ring">
+                                <canvas id="activityRing" width="60" height="60"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <div class="chart-container large">
+                        <div class="chart-header">
+                            <h3>📈 Nutrition Trends (7 Days)</h3>
+                            <div class="chart-controls">
+                                <button class="chart-btn active" data-period="week">Week</button>
+                                <button class="chart-btn" data-period="month">Month</button>
+                                <button class="chart-btn" data-period="year">Year</button>
+                            </div>
+                        </div>
+                        <canvas id="nutritionTrendsChart" height="300"></canvas>
+                    </div>
+
+                    <div class="chart-container medium">
+                        <div class="chart-header">
+                            <h3>🥧 Macro Balance Today</h3>
+                        </div>
+                        <canvas id="macroBalanceChart" height="250"></canvas>
+                    </div>
+                </div>
+
+                <!-- Detailed Analytics Grid -->
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h4>💧 Hydration Pattern</h4>
+                        <canvas id="hydrationPatternChart" height="200"></canvas>
+                        <div class="pattern-insights">
+                            <p>🕐 Peak hydration: 2-4 PM</p>
+                            <p>⚠️ Low hydration: 8-10 AM</p>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h4>😴 Sleep-Nutrition Correlation</h4>
+                        <canvas id="sleepNutritionChart" height="200"></canvas>
+                        <div class="pattern-insights">
+                            <p>💤 Best sleep: 7.5-8 hours</p>
+                            <p>🍽️ Optimal dinner: 3 hours before bed</p>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h4>🎯 Goal Achievement Rate</h4>
+                        <canvas id="goalAchievementChart" height="200"></canvas>
+                        <div class="achievement-stats">
+                            <div class="achievement-stat">
+                                <span class="stat-value">87%</span>
+                                <span class="stat-label">Overall Success</span>
+                            </div>
+                            <div class="achievement-stat">
+                                <span class="stat-value">23</span>
+                                <span class="stat-label">Streak Days</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h4>🌱 Sustainability Score</h4>
+                        <canvas id="sustainabilityChart" height="200"></canvas>
+                        <div class="sustainability-metrics">
+                            <div class="sustainability-metric">
+                                <span class="metric-icon">🌍</span>
+                                <div class="metric-content">
+                                    <span class="metric-value">15.2kg</span>
+                                    <span class="metric-label">CO2 Saved</span>
+                                </div>
+                            </div>
+                            <div class="sustainability-metric">
+                                <span class="metric-icon">💧</span>
+                                <div class="metric-content">
+                                    <span class="metric-value">2,340L</span>
+                                    <span class="metric-label">Water Saved</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Timeline -->
+                <div class="activity-timeline">
+                    <h3>📋 Recent Activity</h3>
+                    <div class="timeline">
+                        <div class="timeline-item achievement">
+                            <div class="timeline-dot">🏆</div>
+                            <div class="timeline-content">
+                                <h4>Goal Achievement</h4>
+                                <p>Completed daily protein goal (120g)</p>
+                                <span class="timeline-time">2 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="timeline-item meal">
+                            <div class="timeline-dot">🍽️</div>
+                            <div class="timeline-content">
+                                <h4>Meal Logged</h4>
+                                <p>Lunch: Quinoa Buddha Bowl (380 cal)</p>
+                                <span class="timeline-time">4 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="timeline-item insight">
+                            <div class="timeline-dot">💡</div>
+                            <div class="timeline-content">
+                                <h4>AI Insight</h4>
+                                <p>Optimal time for dinner based on your sleep pattern</p>
+                                <span class="timeline-time">6 hours ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights Tab -->
+            <div id="insights" class="tab-content">
+                <h2>🧠 Personalized AI Insights</h2>
+                
+                <!-- Smart Recommendations -->
+                <div class="insights-section">
+                    <div class="insights-header">
+                        <h3>🎯 Today's Smart Recommendations</h3>
+                        <span class="insights-badge">AI Powered</span>
+                    </div>
+                    
+                    <div class="recommendations-grid">
+                        <div class="recommendation-card nutrition">
+                            <div class="rec-icon">⚡</div>
+                            <div class="rec-content">
+                                <h4>Energy Optimization</h4>
+                                <p>Your energy dips around 3 PM. Try a protein-rich snack with almonds or Greek yogurt.</p>
+                                <button class="rec-action" onclick="addToMealPlan('protein-snack')">Add to Meal Plan</button>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-card hydration">
+                            <div class="rec-icon">💧</div>
+                            <div class="rec-content">
+                                <h4>Hydration Reminder</h4>
+                                <p>You're 300ml behind your hydration goal. Drink water in the next 2 hours.</p>
+                                <button class="rec-action" onclick="logWater(300)">Log Water Intake</button>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-card cultural">
+                            <div class="rec-icon">🌍</div>
+                            <div class="rec-content">
+                                <h4>Cultural Food Spotlight</h4>
+                                <p>Try Ethiopian Shiro tonight - high protein, fiber-rich, and perfect for your goals!</p>
+                                <button class="rec-action" onclick="exploreCulturalFood('shiro')">Learn More</button>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-card sustainability">
+                            <div class="rec-icon">🌱</div>
+                            <div class="rec-content">
+                                <h4>Sustainability Boost</h4>
+                                <p>Adding one plant-based meal this week will reduce your carbon footprint by 2.3kg CO2.</p>
+                                <button class="rec-action" onclick="findPlantBasedMeals()">Find Recipes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Predictive Analytics -->
+                <div class="insights-section">
+                    <h3>🔮 Predictive Health Analytics</h3>
+                    <div class="prediction-cards">
+                        <div class="prediction-card">
+                            <h4>📊 Weekly Forecast</h4>
+                            <canvas id="weeklyForecastChart" height="200"></canvas>
+                            <div class="forecast-summary">
+                                <p>🎯 <strong>Goal Achievement Probability:</strong> 92%</p>
+                                <p>⚠️ <strong>Risk Factor:</strong> Low hydration on weekends</p>
+                            </div>
+                        </div>
+
+                        <div class="prediction-card">
+                            <h4>🎪 Habit Pattern Analysis</h4>
+                            <canvas id="habitPatternChart" height="200"></canvas>
+                            <div class="habit-insights">
+                                <p>🟢 <strong>Strong Habits:</strong> Morning nutrition, evening meals</p>
+                                <p>🟡 <strong>Improvement Areas:</strong> Afternoon snacking, weekend consistency</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nutrition Heatmap -->
+                <div class="insights-section">
+                    <h3>🔥 Nutrition Intensity Heatmap</h3>
+                    <div class="heatmap-container">
+                        <div class="heatmap-header">
+                            <span>Days of Week</span>
+                            <div class="heatmap-legend">
+                                <span>Low</span>
+                                <div class="legend-gradient"></div>
+                                <span>High</span>
+                            </div>
+                        </div>
+                        <div class="heatmap-grid" id="nutritionHeatmap">
+                            <!-- Dynamically generated heatmap -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meal Planning Dashboard -->
+            <div id="planning" class="tab-content">
+                <h2>📅 Smart Meal Planning Dashboard</h2>
+                
+                <!-- Meal Calendar -->
+                <div class="planning-section">
+                    <div class="calendar-header">
+                        <h3>🗓️ Weekly Meal Calendar</h3>
+                        <div class="calendar-controls">
+                            <button class="calendar-btn" onclick="previousWeek()">⬅️ Previous</button>
+                            <span class="calendar-week" id="currentWeek">Jan 27 - Feb 2, 2025</span>
+                            <button class="calendar-btn" onclick="nextWeek()">Next ➡️</button>
+                        </div>
+                    </div>
+                    
+                    <div class="meal-calendar" id="mealCalendar">
+                        <!-- Dynamic meal calendar will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Nutrition Forecasting -->
+                <div class="planning-section">
+                    <h3>🔮 Nutrition Forecasting</h3>
+                    <div class="forecast-grid">
+                        <div class="forecast-card">
+                            <h4>📊 Weekly Nutrition Projection</h4>
+                            <canvas id="weeklyNutritionForecast" height="250"></canvas>
+                            <div class="forecast-summary">
+                                <div class="forecast-metric">
+                                    <span class="metric-label">Avg Daily Calories</span>
+                                    <span class="metric-value">1,985</span>
+                                </div>
+                                <div class="forecast-metric">
+                                    <span class="metric-label">Protein Target</span>
+                                    <span class="metric-value">98%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="forecast-card">
+                            <h4>🛒 Smart Grocery Forecast</h4>
+                            <div class="grocery-forecast">
+                                <div class="grocery-category">
+                                    <span class="category-icon">🥩</span>
+                                    <div class="category-info">
+                                        <span class="category-name">Proteins</span>
+                                        <span class="category-amount">2.5kg needed</span>
+                                    </div>
+                                </div>
+                                <div class="grocery-category">
+                                    <span class="category-icon">🥬</span>
+                                    <div class="category-info">
+                                        <span class="category-name">Vegetables</span>
+                                        <span class="category-amount">3.2kg needed</span>
+                                    </div>
+                                </div>
+                                <div class="grocery-category">
+                                    <span class="category-icon">🌾</span>
+                                    <div class="category-info">
+                                        <span class="category-name">Grains</span>
+                                        <span class="category-amount">1.8kg needed</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="forecast-btn" onclick="generateGroceryList()">Generate Complete List</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recipe Suggestions -->
+                <div class="planning-section">
+                    <h3>🍽️ AI-Curated Recipe Suggestions</h3>
+                    <div class="recipe-suggestions" id="recipeSuggestions">
+                        <!-- Dynamic recipe suggestions -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Goals Dashboard -->
+            <div id="goals" class="tab-content">
+                <h2>🎯 Advanced Goal Management</h2>
+
+                <!-- Goal Overview -->
+                <div class="goals-overview">
+                    <div class="goal-summary-card">
+                        <h3>📊 Goal Performance Summary</h3>
+                        <div class="goal-metrics">
+                            <div class="goal-metric">
+                                <span class="metric-number">87%</span>
+                                <span class="metric-label">Overall Success Rate</span>
+                            </div>
+                            <div class="goal-metric">
+                                <span class="metric-number">23</span>
+                                <span class="metric-label">Day Streak</span>
+                            </div>
+                            <div class="goal-metric">
+                                <span class="metric-number">12</span>
+                                <span class="metric-label">Goals Achieved</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Goals -->
+                <div class="goals-section">
+                    <h3>🔥 Active Goals</h3>
+                    <div class="goals-grid" id="activeGoals">
+                        <!-- Dynamic goals will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Goal Suggestions -->
+                <div class="goals-section">
+                    <h3>💡 AI-Suggested Goals</h3>
+                    <div class="suggestions-grid" id="goalSuggestions">
+                        <!-- AI-generated goal suggestions -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Community Dashboard -->
+            <div id="community" class="tab-content">
+                <h2>🏆 Community & Challenges</h2>
+                
+                <!-- Community Stats -->
+                <div class="community-stats">
+                    <div class="community-stat">
+                        <span class="stat-icon">👥</span>
+                        <span class="stat-number">2.5M+</span>
+                        <span class="stat-label">Active Users</span>
+                    </div>
+                    <div class="community-stat">
+                        <span class="stat-icon">🍽️</span>
+                        <span class="stat-number">15M+</span>
+                        <span class="stat-label">Meals Logged</span>
+                    </div>
+                    <div class="community-stat">
+                        <span class="stat-icon">🌍</span>
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Countries</span>
+                    </div>
+                </div>
+
+                <!-- Enhanced Leaderboard -->
+                <div class="community-section">
+                    <h3>🏆 Global Leaderboard</h3>
+                    <div class="leaderboard-enhanced" id="enhancedLeaderboard">
+                        <!-- Enhanced leaderboard with more details -->
+                    </div>
+                </div>
+
+                <!-- Team Challenges -->
+                <div class="community-section">
+                    <h3>🤝 Team Challenges</h3>
+                    <div class="team-challenges" id="teamChallenges">
+                        <!-- Team-based challenges -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cultural Foods Dashboard -->
+            <div id="cultural" class="tab-content">
+                <h2>🌍 Cultural Foods & Nutrition</h2>
+                
+                <!-- Cultural Food Explorer -->
+                <div class="cultural-section">
+                    <h3>🍽️ Explore Traditional African Foods</h3>
+                    <div class="cultural-search">
+                        <input type="text" id="culturalFoodSearch" placeholder="Search Ethiopian, West African, or East African foods...">
+                        <button onclick="searchCulturalFoods()" class="btn-primary">🔍 Explore</button>
+                    </div>
+                    
+                    <div class="cultural-categories">
+                        <button class="category-btn active" data-region="all">🌍 All Regions</button>
+                        <button class="category-btn" data-region="ethiopian">🇪🇹 Ethiopian</button>
+                        <button class="category-btn" data-region="west-african">🇳🇬 West African</button>
+                        <button class="category-btn" data-region="east-african">🇰🇪 East African</button>
+                    </div>
+                </div>
+
+                <!-- Featured Cultural Foods -->
+                <div class="cultural-foods-grid" id="culturalFoodsGrid">
+                    <!-- Dynamic cultural foods display -->
+                </div>
+
+                <!-- Nutrition Comparison -->
+                <div class="cultural-section">
+                    <h3>📊 Nutrition Comparison Chart</h3>
+                    <canvas id="culturalNutritionChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Enhanced Modals and Overlays -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner">🍎</div>
+            <p id="loadingMessage">Enhancing your dashboard...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast" class="toast">
+        <span id="toastMessage">Notification message</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="enhanced-dashboard.js"></script>
+</body>
+</html>
