@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartEats - You're Offline</title>
+    <link rel="stylesheet" href="/enhanced-dashboard.css">
+    
+    <style>
+        /* Offline-specific styles */
+        .offline-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .offline-icon {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .offline-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .offline-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .offline-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .retry-button {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 2rem 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .retry-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .cached-data {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            max-width: 600px;
+        }
+        
+        .cached-data h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .cached-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 5px;
+            border-left: 3px solid #4ecdc4;
+        }
+        
+        .network-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .offline .status-indicator {
+            background: #ff6b6b;
+        }
+        
+        .online .status-indicator {
+            background: #4ecdc4;
+        }
+        
+        @media (max-width: 768px) {
+            .offline-title {
+                font-size: 2rem;
+            }
+            
+            .offline-features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="network-status offline">
+            <span class="status-indicator"></span>
+            <span>Offline</span>
+        </div>
+        
+        <div class="offline-icon">📱</div>
+        
+        <h1 class="offline-title">You're Offline</h1>
+        <p class="offline-subtitle">Don't worry! SmartEats works offline too.</p>
+        
+        <div class="offline-features">
+            <div class="feature-card">
+                <div class="feature-icon">🍎</div>
+                <h3>View Cached Data</h3>
+                <p>Access your recent meals, nutrition data, and cultural foods even without internet.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Track Progress</h3>
+                <p>Continue logging meals and tracking goals. Data will sync when you're back online.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>AI Insights</h3>
+                <p>View previously generated AI recommendations and nutrition insights.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>Auto Sync</h3>
+                <p>All your offline actions will automatically sync when connection is restored.</p>
+            </div>
+        </div>
+        
+        <button class="retry-button" onclick="retryConnection()">
+            🔄 Try Again
+        </button>
+        
+        <div class="cached-data">
+            <h3>📦 Available Offline Data</h3>
+            <div id="cached-items">
+                <div class="cached-item">🍽️ Recent meal logs and nutrition data</div>
+                <div class="cached-item">🌍 Cultural foods database (Ethiopian & West African)</div>
+                <div class="cached-item">🏆 Community leaderboard (last update)</div>
+                <div class="cached-item">🎯 Your goals and achievement progress</div>
+                <div class="cached-item">📈 Previous AI insights and recommendations</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 3rem; opacity: 0.8;">
+            <p>🌍 Supporting UN SDG 2 (Zero Hunger) & SDG 3 (Good Health)</p>
+            <p>Even offline, we're committed to your nutrition journey!</p>
+        </div>
+    </div>
+
+    <script>
+        // Network status monitoring
+        function updateNetworkStatus() {
+            const statusElement = document.querySelector('.network-status');
+            const statusText = statusElement.querySelector('span:last-child');
+            
+            if (navigator.onLine) {
+                statusElement.className = 'network-status online';
+                statusText.textContent = 'Online';
+                
+                // Show reconnection message and option to reload
+                showReconnectionMessage();
+            } else {
+                statusElement.className = 'network-status offline';
+                statusText.textContent = 'Offline';
+            }
+        }
+        
+        function showReconnectionMessage() {
+            const container = document.querySelector('.offline-container');
+            const reconnectBanner = document.createElement('div');
+            reconnectBanner.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+                color: white;
+                padding: 1rem;
+                text-align: center;
+                z-index: 1000;
+                animation: slideDown 0.5s ease;
+            `;
+            
+            reconnectBanner.innerHTML = `
+                <div>
+                    ✅ Connection restored! 
+                    <button onclick="window.location.reload()" style="
+                        background: white;
+                        color: #4ecdc4;
+                        border: none;
+                        padding: 0.5rem 1rem;
+                        border-radius: 20px;
+                        margin-left: 1rem;
+                        cursor: pointer;
+                        font-weight: 600;
+                    ">Reload App</button>
+                </div>
+            `;
+            
+            document.body.insertBefore(reconnectBanner, document.body.firstChild);
+        }
+        
+        function retryConnection() {
+            const button = document.querySelector('.retry-button');
+            button.textContent = '🔄 Checking...';
+            button.disabled = true;
+            
+            // Try to fetch a small resource to test connection
+            fetch('/api/v2/health', { 
+                method: 'GET',
+                cache: 'no-cache'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Connection restored
+                    button.textContent = '✅ Connected!';
+                    setTimeout(() => {
+                        window.location.href = '/enhanced-dashboard.html';
+                    }, 1000);
+                } else {
+                    throw new Error('Connection failed');
+                }
+            })
+            .catch(error => {
+                // Still offline
+                button.textContent = '❌ Still Offline';
+                setTimeout(() => {
+                    button.textContent = '🔄 Try Again';
+                    button.disabled = false;
+                }, 2000);
+            });
+        }
+        
+        // Load cached data display
+        async function loadCachedData() {
+            try {
+                // Try to get cached data from service worker
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    
+                    // Get cached nutrition data
+                    const cachedNutrition = await getCachedNutritionData();
+                    if (cachedNutrition) {
+                        addCachedDataItem('🍎 Nutrition database: ' + cachedNutrition.common_foods.length + ' foods available');
+                    }
+                    
+                    // Get cached cultural foods
+                    const cachedCultural = await getCachedCulturalFoods();
+                    if (cachedCultural) {
+                        addCachedDataItem('🌍 Cultural foods: ' + cachedCultural.foods.length + ' traditional recipes');
+                    }
+                    
+                    // Get cached leaderboard
+                    const cachedLeaderboard = await getCachedLeaderboard();
+                    if (cachedLeaderboard) {
+                        addCachedDataItem('🏆 Community data: Top ' + cachedLeaderboard.leaderboard.length + ' users available');
+                    }
+                }
+                
+                // Check IndexedDB for offline data
+                const db = await openIndexedDB();
+                if (db) {
+                    const offlineMeals = await getOfflineMealsCount(db);
+                    if (offlineMeals > 0) {
+                        addCachedDataItem(`🍽️ Offline meals: ${offlineMeals} meals pending sync`);
+                    }
+                    
+                    const offlineGoals = await getOfflineGoalsCount(db);
+                    if (offlineGoals > 0) {
+                        addCachedDataItem(`🎯 Goal updates: ${offlineGoals} updates pending sync`);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Failed to load cached data:', error);
+            }
+        }
+        
+        function addCachedDataItem(text) {
+            const container = document.getElementById('cached-items');
+            const item = document.createElement('div');
+            item.className = 'cached-item';
+            item.textContent = text;
+            container.appendChild(item);
+        }
+        
+        // Utility functions for accessing cached data
+        async function getCachedNutritionData() {
+            try {
+                const cache = await caches.open('smarteats-dynamic-v2.0.0');
+                const response = await cache.match('/api/v2/nutrition/lookup');
+                if (response) {
+                    return await response.json();
+                }
+            } catch (error) {
+                return null;
+            }
+        }
+        
+        async function getCachedCulturalFoods() {
+            try {
+                const cache = await caches.open('smarteats-dynamic-v2.0.0');
+                const response = await cache.match('/api/v2/ai/cultural-foods');
+                if (response) {
+                    return await response.json();
+                }
+            } catch (error) {
+                return null;
+            }
+        }
+        
+        async function getCachedLeaderboard() {
+            try {
+                const cache = await caches.open('smarteats-dynamic-v2.0.0');
+                const response = await cache.match('/api/community/leaderboard');
+                if (response) {
+                    return await response.json();
+                }
+            } catch (error) {
+                return null;
+            }
+        }
+        
+        async function openIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('SmartEatsOffline', 2);
+                request.onerror = () => resolve(null);
+                request.onsuccess = () => resolve(request.result);
+            });
+        }
+        
+        async function getOfflineMealsCount(db) {
+            try {
+                const transaction = db.transaction(['offline_meals'], 'readonly');
+                const store = transaction.objectStore('offline_meals');
+                const count = await store.count();
+                return count;
+            } catch (error) {
+                return 0;
+            }
+        }
+        
+        async function getOfflineGoalsCount(db) {
+            try {
+                const transaction = db.transaction(['offline_goals'], 'readonly');
+                const store = transaction.objectStore('offline_goals');
+                const count = await store.count();
+                return count;
+            } catch (error) {
+                return 0;
+            }
+        }
+        
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from {
+                    transform: translateY(-100%);
+                }
+                to {
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize
+        updateNetworkStatus();
+        loadCachedData();
+        
+        // Listen for network changes
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+        
+        // Add some interactive elements
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('feature-card')) {
+                e.target.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    e.target.style.transform = 'scale(1)';
+                }, 150);
+            }
+        });
+        
+        // Show helpful tips based on time offline
+        setTimeout(() => {
+            const tipsElement = document.createElement('div');
+            tipsElement.style.cssText = `
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                padding: 1.5rem;
+                margin-top: 2rem;
+                max-width: 600px;
+                animation: fadeIn 1s ease;
+            `;
+            
+            tipsElement.innerHTML = `
+                <h3>💡 Offline Tips</h3>
+                <p>• Your data is safe - everything is stored locally</p>
+                <p>• Continue using the app normally - sync happens automatically</p>
+                <p>• AI recommendations from your cache are still personalized</p>
+                <p>• Cultural foods database works fully offline</p>
+            `;
+            
+            document.querySelector('.offline-container').appendChild(tipsElement);
+            
+            // Add fade-in animation
+            const fadeStyle = document.createElement('style');
+            fadeStyle.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `;
+            document.head.appendChild(fadeStyle);
+            
+        }, 3000);
+        
+        console.log('📱 SmartEats Offline Page Loaded');
+        console.log('🔄 Monitoring network status...');
+        console.log('💾 Loading cached data...');
+    </script>
+</body>
+</html>
